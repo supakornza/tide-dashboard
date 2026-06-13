@@ -1,0 +1,99 @@
+- table [ref=e2]:
+  - rowgroup [ref=e3]:
+    - row "แอปพลิเคชันนี้สร้างโดยผู้ใช้ Google Apps Script" [ref=e4]:
+      - cell "แอปพลิเคชันนี้สร้างโดยผู้ใช้ Google Apps Script" [ref=e5]:
+        - banner "แอปพลิเคชันนี้สร้างโดยผู้ใช้ Google Apps Script" [ref=e6]:
+          - generic [ref=e7]:
+            - generic [ref=e8]:
+              - img [ref=e10]
+              - alert [ref=e12]: แอปพลิเคชันนี้สร้างโดยผู้ใช้ Google Apps Script
+            - generic [ref=e13]:
+              - link "รายงานการละเมิด" [ref=e14] [cursor=pointer]:
+                - /url: https://drive.google.com/abuse?id=AKkXjoz-vdtGQlR9P3wGGD5bHiM_ODGiZ39ejr8UijrIZdXddaDxHbhhshujHevK5eHSft1BL0H42PTKQEiWsWX63nkxRwqS8WPxLWsc%3A0&docurl=https%3A%2F%2Fscript.google.com%2Fmacros%2Fs%2FAKfycbz_G3L2yPRVPzD7rtAT_M4xtFnhbajny8qZoqtk7qUNLoeHhDwnId6nHDaxUluT-Ie12g%2Fexec
+              - link "ดูข้อมูลเพิ่มเติม" [ref=e15] [cursor=pointer]:
+                - /url: https://developers.google.com/apps-script
+          - button "ปิด" [ref=e16]:
+            - img [ref=e17]
+    - row [ref=e19]:
+      - cell [ref=e20]:
+        - iframe [ref=e21]:
+          - iframe [ref=f17e2]:
+            - generic [active] [ref=f18e1]:
+              - generic [ref=f18e2]:
+                - generic [ref=f18e3]:
+                  - heading "🌊 Tide Monitor Dashboard" [level=1] [ref=f18e4]
+                  - paragraph [ref=f18e5]: โครงการป้องกันและแก้ไขปัญหาการกัดเซาะชายฝั่งทะเลบางขุนเทียน กรุงเทพมหานคร
+                - generic [ref=f18e6]:
+                  - generic [ref=f18e7]:
+                    - generic [ref=f18e8]: 08:04:33
+                    - generic [ref=f18e9]: วันเสาร์ที่ 13 มิถุนายน 2569
+                  - generic [ref=f18e10]: LIVE
+              - generic [ref=f18e12]:
+                - generic [ref=f18e13]:
+                  - generic [ref=f18e14]: "📅 วันที่:"
+                  - textbox [ref=f18e15]: 2026-06-13
+                - generic [ref=f18e16]:
+                  - generic [ref=f18e17]: "สถานี:"
+                  - generic [ref=f18e18]:
+                    - button "ป้อมพระจุลจอมเกล้า" [ref=f18e19] [cursor=pointer]
+                    - button "สันดอน" [ref=f18e20] [cursor=pointer]
+                    - button "ปากแม่น้ำท่าจีน" [ref=f18e21] [cursor=pointer]
+                - button "วันนี้" [ref=f18e22] [cursor=pointer]
+                - button "🔄 รีเฟรช" [ref=f18e23] [cursor=pointer]
+              - generic [ref=f18e24]:
+                - generic [ref=f18e25]:
+                  - generic [ref=f18e27]: กำลังโหลดข้อมูล...
+                  - generic [ref=f18e29]:
+                    - generic [ref=f18e30]:
+                      - generic [ref=f18e31]: 📈
+                      - text: กราฟระดับน้ำตลอดวัน
+                    - generic [ref=f18e34]:
+                      - generic [ref=f18e35]: น้ำขึ้นสูงสุด
+                      - generic [ref=f18e37]: น้ำลงต่ำสุด
+                      - generic [ref=f18e39]: ระดับน้ำทะเลเฉลี่ย (MSL)
+                      - generic [ref=f18e41]: ช่วงเวลาเข้างานได้
+                  - generic [ref=f18e43]:
+                    - generic [ref=f18e44]:
+                      - generic [ref=f18e45]: 🗺️
+                      - text: แผนที่พื้นที่โครงการ
+                    - generic [ref=f18e47]:
+                      - region "Map" [ref=f18e48]
+                      - iframe [ref=f18e53]:
+                        
+                  - generic [ref=f18e54]:
+                    - generic [ref=f18e55]:
+                      - generic [ref=f18e56]: 📅
+                      - text: พยากรณ์ 7 วันข้างหน้า
+                    - generic [ref=f18e58]: กำลังโหลด...
+                - generic [ref=f18e60]:
+                  - generic [ref=f18e61]:
+                    - generic [ref=f18e62]:
+                      - generic [ref=f18e63]: 🌊
+                      - text: ตารางน้ำขึ้น-น้ำลง
+                    - generic [ref=f18e65]: กำลังโหลด...
+                  - generic [ref=f18e67]:
+                    - generic [ref=f18e68]:
+                      - generic [ref=f18e69]: 🏗️
+                      - text: ช่วงเวลาแนะนำเข้างาน
+                    - paragraph [ref=f18e70]: ช่วงที่ระดับน้ำเหมาะสมสำหรับการเคลื่อนย้ายเครื่องจักรและขนส่งวัสดุ
+                    - generic [ref=f18e72]: กำลังโหลด...
+                  - generic [ref=f18e74]:
+                    - generic [ref=f18e75]:
+                      - generic [ref=f18e76]: ℹ️
+                      - text: ข้อมูลสถานี
+                    - generic [ref=f18e78]: กำลังโหลด...
+                  - generic [ref=f18e80]:
+                    - generic [ref=f18e81]:
+                      - generic [ref=f18e82]: 📚
+                      - text: แหล่งข้อมูล
+                    - generic [ref=f18e83]:
+                      - paragraph [ref=f18e84]: • กรมอุทกศาสตร์ กองทัพเรือ — ตารางทำนายน้ำขึ้นน้ำลง
+                      - paragraph [ref=f18e85]: • กรมเจ้าท่า — ข้อมูลระดับน้ำทะเล
+                      - paragraph [ref=f18e86]: • สถานีสันดอน ปากแม่น้ำเจ้าพระยา
+                      - paragraph [ref=f18e87]: • ป้อมพระจุลจอมเกล้า, สมุทรปราการ
+                      - paragraph [ref=f18e88]: • ปากแม่น้ำท่าจีน, สมุทรสาคร
+                      - paragraph [ref=f18e89]: ⚠️ ข้อมูลเป็นการจำลองตามรูปแบบจริง ควรเช็คกับตารางน้ำขึ้นน้ำลงจริงก่อนเข้างานทุกครั้ง
+              - generic [ref=f18e90]:
+                - text: Tide Monitor Dashboard v1.0 | โครงการป้องกันการกัดเซาะชายฝั่งทะเลบางขุนเทียน | ข้อมูลจำลองตามรูปแบบของ
+                - link "กรมอุทกศาสตร์ กองทัพเรือ" [ref=f18e91] [cursor=pointer]:
+                  - /url: "#"

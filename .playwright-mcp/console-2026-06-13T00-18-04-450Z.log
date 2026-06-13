@@ -1,0 +1,27 @@
+[    2887ms] [ERROR] TypeError: Cannot read properties of undefined (reading 'th')
+    at a.eval (eval at Ya (:6:91725), <anonymous>:3:1510)
+    at e._render (<anonymous>:6:35481)
+    at a.r (<anonymous>:6:68170)
+    at fn.get (<anonymous>:6:26768)
+    at new fn (<anonymous>:6:26686)
+    at <anonymous>:6:68184
+    at wn.$mount (<anonymous>:6:68331)
+    at wn.$mount (<anonymous>:6:93549)
+    at init (<anonymous>:6:19508)
+    at <anonymous>:6:56519 @ :5
+[   10784ms] [WARNING] <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes"> @ https://www.navigationsupport.com/:0
+[   37622ms] [WARNING] <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes"> @ https://www.navigationsupport.com/search&text=%E0%B8%A3%E0%B8%B0%E0%B8%94%E0%B8%B1%E0%B8%9A%E0%B8%99%E0%B9%89%E0%B8%B3%E0%B8%97%E0%B8%B0%E0%B9%80%E0%B8%A5:0
+[   46191ms] [WARNING] <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes"> @ https://www.navigationsupport.com/search&text=msl:0
+[   52548ms] [WARNING] <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes"> @ https://www.navigationsupport.com/search&text=%E0%B8%A3%E0%B8%B0%E0%B8%94%E0%B8%B1%E0%B8%9A%E0%B8%99%E0%B9%89%E0%B8%B3%E0%B8%97%E0%B8%B0%E0%B9%80%E0%B8%A5:0
+[   53267ms] [WARNING] <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes"> @ https://www.navigationsupport.com/:0
+[   53299ms] [ERROR] TypeError: Cannot read properties of undefined (reading 'th')
+    at a.eval (eval at Ya (:6:91725), <anonymous>:3:1510)
+    at e._render (<anonymous>:6:35481)
+    at a.r (<anonymous>:6:68170)
+    at fn.get (<anonymous>:6:26768)
+    at new fn (<anonymous>:6:26686)
+    at <anonymous>:6:68184
+    at wn.$mount (<anonymous>:6:68331)
+    at wn.$mount (<anonymous>:6:93549)
+    at init (<anonymous>:6:19508)
+    at <anonymous>:6:56519 @ :5

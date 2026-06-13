@@ -1,0 +1,2 @@
+[   14470ms] [WARNING] Mixed Content: The page at 'https://202.44.241.186/servicestide2026.html' was loaded over HTTPS, but requested an insecure element 'http://www.hydro.navy.mi.th/images/Wall_Tide2.jpg'. This request was automatically upgraded to HTTPS, For more information see https://blog.chromium.org/2019/10/no-more-mixed-messages-about-https.html @ https://202.44.241.186/servicestide2026.html:0
+[   17845ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ https://202.44.241.186/favicon.ico:0

@@ -1,0 +1,55 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - img [ref=e3]
+    - link "" [ref=e5] [cursor=pointer]:
+      - /url: /MD/Login
+      - generic [ref=e6]: 
+  - generic [ref=e7]:
+    - list [ref=e10]:
+      - listitem [ref=e11]:
+        - link "หน้าหลัก" [ref=e12] [cursor=pointer]:
+          - /url: /
+      - listitem [ref=e13]:
+        - link "ข้อมูลหน่วยงาน" [ref=e14] [cursor=pointer]:
+          - /url: /MD/Department
+      - listitem [ref=e15]:
+        - link "สถานีวัดระดับน้ำอัตโนมัติ" [ref=e16] [cursor=pointer]:
+          - /url: "#"
+          - text: สถานีวัดระดับน้ำอัตโนมัติ
+      - listitem [ref=e18]:
+        - link "ข้อมูลสถิติย้อนหลังสถานีแบบแอนนะล็อก" [ref=e19] [cursor=pointer]:
+          - /url: "#"
+          - text: ข้อมูลสถิติย้อนหลังสถานีแบบแอนนะล็อก
+      - listitem [ref=e21]:
+        - link "แบบฟอร์ม" [ref=e22] [cursor=pointer]:
+          - /url: /MD/Form
+      - listitem [ref=e23]:
+        - link "ติดต่อเรา" [ref=e24] [cursor=pointer]:
+          - /url: /MD/Contact
+      - listitem [ref=e25]:
+        - link "ระยะห่างระดับน้ำกับท้องสะพาน" [ref=e26] [cursor=pointer]:
+          - /url: /MD/Distance
+    - generic [ref=e29]:
+      - paragraph [ref=e32]: รอสักครู่ ..
+      - generic [ref=e33]:
+        - generic [ref=e35]:
+          - generic [ref=e36]: หัวหน้ากลุ่มอุทกวิทยา
+          - generic [ref=e37]:
+            - img [ref=e38]
+            - paragraph [ref=e39]:
+              - strong [ref=e40]: นางสาวปัญจรัตน์ ปรุงเจริญ
+            - paragraph [ref=e41]:
+              - strong [ref=e42]: ตำแหน่ง
+              - text: นักอุทกวิทยาชำนาญการพิเศษ
+        - link [ref=e44] [cursor=pointer]:
+          - /url: https://md.dpis.go.th/users/member/login
+          - img [ref=e45]
+        - generic [ref=e47]:
+          - generic [ref=e48]: สถิติผู้เยี่ยมชม
+          - link "free web page counter" [ref=e50] [cursor=pointer]:
+            - /url: https://www.freecounterstat.com
+            - img "free web page counter" [ref=e51]
+  - contentinfo [ref=e52]:
+    - generic [ref=e53]:
+      - paragraph [ref=e54]: กลุ่มอุทกวิทยา กรมเจ้าท่า เลขที่ 1278 ถนน โยธา แขวงตลาดน้อย เขตสัมพันธวงศ์ กรุงเทพมหานคร 10100
+      - paragraph [ref=e55]: โทรศัพท์ 02-233-1311 ต่อ 278, 326

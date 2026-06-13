@@ -1,0 +1,36 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - iframe [ref=e4]:
+      - generic [active] [ref=f5e1]:
+        - img "กรมชลประทาน" [ref=f5e2]
+        - generic [ref=f5e3]:
+          - link "ศูนย์ประมวลฯ" [ref=f5e4] [cursor=pointer]:
+            - /url: http://water.rid.go.th/wmsc/
+          - text: "|"
+          - link "กรมชลประทาน" [ref=f5e5] [cursor=pointer]:
+            - /url: http://www.rid.go.th/
+    - generic [ref=e5]:
+      - text: เลือกสถานีวัดระดับน้ำทะเล
+      - link "สันดอนเจ้าพระยา" [ref=e7] [cursor=pointer]:
+        - /url: bangkokbar.html
+      - link "บางปะกง(ฉะเชิงเทรา)" [ref=e9] [cursor=pointer]:
+        - /url: bangpakong.html
+      - link "ป้อมพระจุลฯ" [ref=e11] [cursor=pointer]:
+        - /url: pomphajun.html
+      - link "ปากพนัง(นครศรีธรรมราช)" [ref=e13] [cursor=pointer]:
+        - /url: pakpanung.html
+      - paragraph [ref=e14]:
+        - link "ปากน้ำท่าจีน (สมุทรสาคร)" [ref=e16] [cursor=pointer]:
+          - /url: thachin.html
+        - link "เกาะตะเภาน้อย (ภูเก็ต)" [ref=e18] [cursor=pointer]:
+          - /url: pukhet.html
+        - link "เกาะสมุย (สุราษฎร์ธานี)" [ref=e20] [cursor=pointer]:
+          - /url: samui.html
+    - iframe [ref=e22]:
+      
+  - generic [ref=e23]:
+    - separator [ref=e24]
+    - generic [ref=e25]:
+      - text: ศูนย์ประมวลวิเคราะห์สถานการณ์น้ำ กรมชลประทาน
+      - text: "โทรศัพท์: 1460, 0-2243-6956, 0-2241-3350, 0-2243-1098"
+      - text: "โทรสาร: 0-2243-6956,0-2241-3350,0-2243-1098"

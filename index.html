@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tide Monitor — Bang Khun Thian Coastal Project</title>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  
+  <!-- Google Maps (optional — map section hidden if key not set) -->
+  <script>
+    const MAPS_API_KEY = 'AIzaSyCTeQvv1bsXX7i1LRknxqSMvN2D_Xhc4vM';
+    if (MAPS_API_KEY !== 'YOUR_GOOGLE_MAPS_API_KEY') {
+      const s = document.createElement('script');
+      s.src = 'https://maps.googleapis.com/maps/api/js?key=' + MAPS_API_KEY + '&callback=initMap';
+      s.async = true; s.defer = true;
+      document.head.appendChild(s);
+    }
+  </script>
+  
+  <style>
+    :root {
+      --primary: #0066cc;
+      --primary-dark: #004999;
+      --secondary: #00a8e8;
+      --accent: #ff6b35;
+      --success: #28a745;
+      --warning: #ffc107;
+      --danger: #dc3545;
+      --dark: #1a1a2e;
+      --darker: #0f0f1a;
+      --light: #e8f4f8;
+      --card-bg: #16213e;
+      --text: #e0e0e0;
+      --text-dim: #8899aa;
+      --border: #2a3f5f;
+      --rising: #ff6b35;
+      --falling: #4ecdc4;
+      --msl-line: #ffd700;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Prompt', sans-serif;
+      background: var(--darker);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    
+    /* ===== HEADER ===== */
+    .header {
+      background: linear-gradient(135deg, var(--dark) 0%, var(--card-bg) 100%);
+      border-bottom: 2px solid var(--primary);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    
+    .header-left h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+    
+    .header-left p {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .datetime-display {
+      text-align: right;
+    }
+    
+    .datetime-display .time {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--secondary);
+      font-variant-numeric: tabular-nums;
+    }
+    
+    .datetime-display .date {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+    
+    .live-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(40, 167, 69, 0.15);
+      border: 1px solid var(--success);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 0.75rem;
+      color: var(--success);
+    }
+    
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+    
+    /* ===== CONTROLS ===== */
+    .controls {
+      padding: 12px 24px;
+      background: var(--dark);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .control-group label {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+    
+    input[type="date"] {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-family: 'Prompt', sans-serif;
+      font-size: 0.85rem;
+    }
+    
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'Prompt', sans-serif;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    
+    .btn:hover { background: var(--primary-dark); }
+    .btn.active { background: var(--secondary); }
+    
+    .station-tabs {
+      display: flex;
+      gap: 4px;
+    }
+    
+    .station-tab {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: 'Prompt', sans-serif;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+    
+    .station-tab.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    
+    /* ===== MAIN GRID ===== */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 16px;
+      padding: 16px 24px;
+    }
+    
+    @media (max-width: 1024px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+    
+    /* ===== CARDS ===== */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--secondary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .card-title .icon {
+      font-size: 1.1rem;
+    }
+    
+    /* ===== CURRENT LEVEL DISPLAY ===== */
+    .level-display {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    
+    .level-card {
+      background: linear-gradient(135deg, var(--dark), var(--card-bg));
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    
+    .level-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+    
+    .level-card .station-name {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+    
+    .level-card .level-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    
+    .level-card .level-unit {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+    }
+    
+    .level-card .tide-status {
+      font-size: 0.7rem;
+      margin-top: 6px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      display: inline-block;
+    }
+    
+    .tide-status.rising {
+      background: rgba(255, 107, 53, 0.2);
+      color: var(--rising);
+    }
+    
+    .tide-status.falling {
+      background: rgba(78, 205, 196, 0.2);
+      color: var(--falling);
+    }
+    
+    .tide-status.stable {
+      background: rgba(136, 153, 170, 0.2);
+      color: var(--text-dim);
+    }
+    
+    /* ===== CHART ===== */
+    .chart-container {
+      position: relative;
+      height: 300px;
+      width: 100%;
+    }
+    
+    /* ===== MAP ===== */
+    #map {
+      width: 100%;
+      height: 300px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    
+    /* ===== HIGH/LOW TABLE ===== */
+    .tide-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    
+    .tide-table th {
+      background: var(--dark);
+      color: var(--text-dim);
+      padding: 8px 12px;
+      text-align: left;
+      font-weight: 500;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .tide-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(42, 63, 95, 0.5);
+    }
+    
+    .tide-table tr:hover {
+      background: rgba(0, 102, 204, 0.1);
+    }
+    
+    .high-tide { color: var(--rising); }
+    .low-tide { color: var(--falling); }
+    
+    /* ===== WORK WINDOWS ===== */
+    .work-window {
+      background: rgba(40, 167, 69, 0.1);
+      border: 1px solid rgba(40, 167, 69, 0.3);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .work-window .time-range {
+      font-weight: 600;
+      color: var(--success);
+    }
+    
+    .work-window .duration {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+    
+    .work-window.restricted {
+      background: rgba(220, 53, 69, 0.1);
+      border-color: rgba(220, 53, 69, 0.3);
+    }
+    
+    .work-window.restricted .time-range {
+      color: var(--danger);
+    }
+    
+    /* ===== WEEKLY FORECAST ===== */
+    .weekly-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+    
+    @media (max-width: 768px) {
+      .weekly-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    
+    .day-card {
+      background: var(--dark);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.75rem;
+    }
+    
+    .day-card .day-name {
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+    
+    .day-card .day-tide-high {
+      color: var(--rising);
+      font-weight: 600;
+    }
+    
+    .day-card .day-tide-low {
+      color: var(--falling);
+      font-weight: 600;
+    }
+    
+    .day-card.today {
+      border-color: var(--primary);
+      background: rgba(0, 102, 204, 0.1);
+    }
+    
+    /* ===== LEGEND ===== */
+    .legend {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }
+    
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+    
+    /* ===== LOADING ===== */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
+      color: var(--text-dim);
+    }
+    
+    .spinner {
+      width: 30px;
+      height: 30px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 12px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* ===== FOOTER ===== */
+    .footer {
+      padding: 12px 24px;
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border);
+      background: var(--dark);
+    }
+    
+    .footer a {
+      color: var(--secondary);
+      text-decoration: none;
+    }
+    
+    /* ===== ALERT BANNER ===== */
+    .alert-banner {
+      background: linear-gradient(135deg, rgba(220, 53, 69, 0.2), rgba(255, 107, 53, 0.2));
+      border: 1px solid var(--danger);
+      border-radius: 8px;
+      padding: 10px 16px;
+      margin-bottom: 16px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+    }
+    
+    .alert-banner.show { display: flex; }
+    .alert-banner .alert-icon { font-size: 1.2rem; }
+    
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 600px) {
+      .level-display { grid-template-columns: 1fr; }
+      .header { padding: 12px 16px; }
+      .main-grid { padding: 12px 16px; }
+      .controls { padding: 10px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <h1>🌊 Tide Monitor Dashboard</h1>
+    <p>โครงการป้องกันและแก้ไขปัญหาการกัดเซาะชายฝั่งทะเลบางขุนเทียน กรุงเทพมหานคร</p>
+  </div>
+  <div class="header-right">
+    <div class="datetime-display">
+      <div class="time" id="currentTime">--:--:--</div>
+      <div class="date" id="currentDate">กำลังโหลด...</div>
+    </div>
+    <div class="live-indicator">
+      <div class="live-dot"></div>
+      LIVE
+    </div>
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="control-group">
+    <label>📅 วันที่:</label>
+    <input type="date" id="datePicker" onchange="loadData()">
+  </div>
+  <div class="control-group">
+    <label>สถานี:</label>
+    <div class="station-tabs">
+      <button class="station-tab active" onclick="selectStation('PHRA_CHULA', this)">ป้อมพระจุลจอมเกล้า</button>
+      <button class="station-tab" onclick="selectStation('SANDON', this)">สันดอน</button>
+      <button class="station-tab" onclick="selectStation('THA_CHIN', this)">ปากแม่น้ำท่าจีน</button>
+    </div>
+  </div>
+  <button class="btn" onclick="goToToday()">วันนี้</button>
+  <button class="btn" onclick="refreshData()">🔄 รีเฟรช</button>
+</div>
+
+<!-- ALERT BANNER -->
+<div class="alert-banner" id="alertBanner">
+  <span class="alert-icon">⚠️</span>
+  <span id="alertText"></span>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-grid">
+  <div class="left-column">
+    
+    <!-- CURRENT LEVEL CARDS -->
+    <div class="level-display" id="levelDisplay">
+      <div class="loading"><div class="spinner"></div> กำลังโหลดข้อมูล...</div>
+    </div>
+    
+    <!-- TIDE CHART -->
+    <div class="card">
+      <div class="card-title"><span class="icon">📈</span> กราฟระดับน้ำตลอดวัน</div>
+      <div class="chart-container">
+        <canvas id="tideChart"></canvas>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-color" style="background:#ff6b35"></div> น้ำขึ้นสูงสุด</div>
+        <div class="legend-item"><div class="legend-color" style="background:#4ecdc4"></div> น้ำลงต่ำสุด</div>
+        <div class="legend-item"><div class="legend-color" style="background:#ffd700"></div> ระดับน้ำทะเลเฉลี่ย (MSL)</div>
+        <div class="legend-item"><div class="legend-color" style="background:rgba(40,167,69,0.3)"></div> ช่วงเวลาเข้างานได้</div>
+      </div>
+    </div>
+    
+    <!-- MAP -->
+    <div class="card">
+      <div class="card-title"><span class="icon">🗺️</span> แผนที่พื้นที่โครงการ</div>
+      <div id="map">
+        <div class="loading" style="height:300px"><div class="spinner"></div> กำลังโหลดแผนที่...</div>
+      </div>
+    </div>
+    
+    <!-- WEEKLY FORECAST -->
+    <div class="card">
+      <div class="card-title"><span class="icon">📅</span> พยากรณ์ 7 วันข้างหน้า</div>
+      <div class="weekly-grid" id="weeklyForecast">
+        <div class="loading"><div class="spinner"></div> กำลังโหลด...</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="right-column">
+    
+    <!-- HIGH/LOW TIDE TABLE -->
+    <div class="card">
+      <div class="card-title"><span class="icon">🌊</span> ตารางน้ำขึ้น-น้ำลง</div>
+      <div id="tideTableContainer">
+        <div class="loading"><div class="spinner"></div> กำลังโหลด...</div>
+      </div>
+    </div>
+    
+    <!-- WORK WINDOWS -->
+    <div class="card">
+      <div class="card-title"><span class="icon">🏗️</span> ช่วงเวลาแนะนำเข้างาน</div>
+      <p style="font-size:0.75rem; color:var(--text-dim); margin-bottom:10px;">
+        ช่วงที่ระดับน้ำเหมาะสมสำหรับการเคลื่อนย้ายเครื่องจักรและขนส่งวัสดุ
+      </p>
+      <div id="workWindows">
+        <div class="loading"><div class="spinner"></div> กำลังโหลด...</div>
+      </div>
+    </div>
+    
+    <!-- STATION INFO -->
+    <div class="card">
+      <div class="card-title"><span class="icon">ℹ️</span> ข้อมูลสถานี</div>
+      <div id="stationInfo">
+        <div class="loading"><div class="spinner"></div> กำลังโหลด...</div>
+      </div>
+    </div>
+    
+    <!-- DATA SOURCES -->
+    <div class="card">
+      <div class="card-title"><span class="icon">📚</span> แหล่งข้อมูล</div>
+      <div style="font-size:0.75rem; color:var(--text-dim); line-height:1.6;">
+        <p>• กรมอุทกศาสตร์ กองทัพเรือ — ตารางทำนายน้ำขึ้นน้ำลง</p>
+        <p>• กรมเจ้าท่า — ข้อมูลระดับน้ำทะเล</p>
+        <p>• สถานีสันดอน ปากแม่น้ำเจ้าพระยา</p>
+        <p>• ป้อมพระจุลจอมเกล้า, สมุทรปราการ</p>
+        <p>• ปากแม่น้ำท่าจีน, สมุทรสาคร</p>
+        <br>
+        <p style="color:var(--warning);">⚠️ ข้อมูลเป็นการจำลองตามรูปแบบจริง ควรเช็คกับตารางน้ำขึ้นน้ำลงจริงก่อนเข้างานทุกครั้ง</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  Tide Monitor Dashboard v1.0 | โครงการป้องกันการกัดเซาะชายฝั่งทะเลบางขุนเทียน | 
+  ข้อมูลจำลองตามรูปแบบของ <a href="#">กรมอุทกศาสตร์ กองทัพเรือ</a>
+</div>
+
+<script>
+// ===== GLOBAL STATE =====
+let currentStation = 'PHRA_CHULA';
+let dashboardData = null;
+let weeklyData = null;
+let tideChart = null;
+let map = null;
+let markers = [];
+let realtimeInterval = null;
+
+// ===== INITIALIZATION =====
+document.addEventListener('DOMContentLoaded', function() {
+  // Set default date to today
+  const today = new Date();
+  const dateStr = today.toISOString().split('T')[0];
+  document.getElementById('datePicker').value = dateStr;
+  
+  // Update clock
+  updateClock();
+  setInterval(updateClock, 1000);
+  
+  // Load data
+  loadData();
+
+  // Show map placeholder if Maps API was not loaded (no API key)
+  if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
+    showMapUnavailable();
+  }
+
+  // Start realtime updates (every 60 seconds)
+  realtimeInterval = setInterval(refreshData, 60000);
+});
+
+// ===== CLOCK =====
+function updateClock() {
+  const now = new Date();
+  const options = { 
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    timeZone: 'Asia/Bangkok'
+  };
+  document.getElementById('currentTime').textContent = now.toLocaleTimeString('th-TH', { timeZone: 'Asia/Bangkok' });
+  document.getElementById('currentDate').textContent = now.toLocaleDateString('th-TH', options);
+}
+
+// ===== LOAD DATA =====
+function loadData() {
+  const dateStr = document.getElementById('datePicker').value;
+  
+  google.script.run
+    .withSuccessHandler(function(data) {
+      dashboardData = data;
+      renderAll();
+    })
+    .withFailureHandler(function(err) {
+      alert('เกิดข้อผิดพลาด: ' + err.message);
+    })
+    .getDashboardData(dateStr);
+  
+  // Also load weekly forecast
+  google.script.run
+    .withSuccessHandler(function(data) {
+      weeklyData = data;
+      renderWeeklyForecast(data);
+    })
+    .withFailureHandler(function(err) {
+      console.error('Weekly forecast error:', err);
+    })
+    .getWeeklyForecast(dateStr);
+}
+
+function refreshData() {
+  loadData();
+}
+
+function goToToday() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('datePicker').value = today;
+  loadData();
+}
+
+function selectStation(stationKey, btn) {
+  currentStation = stationKey;
+  document.querySelectorAll('.station-tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  // sync tab highlight when clicked from level card
+  const tabMap = { PHRA_CHULA: 0, SANDON: 1, THA_CHIN: 2 };
+  const tabs = document.querySelectorAll('.station-tab');
+  if (!btn && tabs[tabMap[stationKey]]) {
+    tabs[tabMap[stationKey]].classList.add('active');
+  }
+  renderAll();
+  if (weeklyData) renderWeeklyForecast(weeklyData);
+}
+
+// ===== RENDER ALL =====
+function renderAll() {
+  if (!dashboardData) return;
+  
+  renderLevelCards();
+  renderTideChart();
+  renderTideTable();
+  renderWorkWindows();
+  renderStationInfo();
+  checkAlerts();
+}
+
+// ===== LEVEL CARDS =====
+function renderLevelCards() {
+  const container = document.getElementById('levelDisplay');
+  const stations = dashboardData.stations;
+  
+  let html = '';
+  for (const [key, data] of Object.entries(stations)) {
+    const statusClass = data.tideStatus || 'stable';
+    const statusText = statusClass === 'rising' ? '⬆ น้ำขึ้น' : statusClass === 'falling' ? '⬇ น้ำลง' : '— คงที่';
+    const level = data.currentLevel !== undefined ? data.currentLevel : data.tideData[Math.floor(data.tideData.length / 2)].level;
+    
+    html += `
+      <div class="level-card" onclick="selectStation('${key}', null)" style="cursor:pointer">
+        <div class="station-name">${data.info.name}</div>
+        <div class="level-value" style="color: ${level > 1.0 ? 'var(--rising)' : level < 0 ? 'var(--falling)' : 'var(--secondary)'}">
+          ${level > 0 ? '+' : ''}${level.toFixed(2)}
+        </div>
+        <div class="level-unit">เมตร (MSL)</div>
+        <div class="tide-status ${statusClass}">${statusText}</div>
+        <div style="font-size:0.65rem;margin-top:4px;color:${data.dataSource==='real'?'var(--success)':data.dataSource==='table'?'var(--info, #4fc3f7)':'var(--text-dim)'}">
+          ${data.dataSource === 'real' ? '📡 ข้อมูลจริง' : data.dataSource === 'table' ? '📋 ตารางน้ำ 2026' : '🔢 จำลอง'}
+        </div>
+      </div>
+    `;
+  }
+  
+  container.innerHTML = html;
+}
+
+// ===== TIDE CHART =====
+function renderTideChart() {
+  const ctx = document.getElementById('tideChart').getContext('2d');
+  const stationData = dashboardData.stations[currentStation];
+  const tideData = stationData.tideData;
+  
+  const labels = tideData.map(d => d.time);
+  const levels = tideData.map(d => d.level);
+  
+  // Find min/max for work window
+  const minWork = -0.3;
+  const maxWork = 0.5;
+  
+  if (tideChart) {
+    tideChart.destroy();
+  }
+  
+  tideChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'ระดับน้ำ (MSL)',
+          data: levels,
+          borderColor: '#00a8e8',
+          backgroundColor: 'rgba(0, 168, 232, 0.1)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 0,
+          pointHoverRadius: 6,
+          borderWidth: 2
+        },
+        {
+          label: 'MSL (ระดับน้ำทะเลเฉลี่ย)',
+          data: labels.map(() => stationData.info.msl),
+          borderColor: '#ffd700',
+          borderDash: [5, 5],
+          borderWidth: 1,
+          pointRadius: 0,
+          fill: false
+        },
+        {
+          label: 'ขอบเขตเข้างานได้',
+          data: labels.map(() => maxWork),
+          borderColor: 'rgba(40, 167, 69, 0.3)',
+          backgroundColor: 'rgba(40, 167, 69, 0.1)',
+          borderWidth: 1,
+          pointRadius: 0,
+          fill: '+1'
+        },
+        {
+          data: labels.map(() => minWork),
+          borderColor: 'rgba(40, 167, 69, 0.3)',
+          borderWidth: 1,
+          pointRadius: 0,
+          fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        intersect: false,
+        mode: 'index'
+      },
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          backgroundColor: 'rgba(22, 33, 62, 0.95)',
+          titleColor: '#00a8e8',
+          bodyColor: '#e0e0e0',
+          borderColor: '#2a3f5f',
+          borderWidth: 1,
+          callbacks: {
+            label: function(ctx) {
+              return `${ctx.dataset.label}: ${ctx.parsed.y > 0 ? '+' : ''}${ctx.parsed.y.toFixed(2)} ม.`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(42, 63, 95, 0.3)' },
+          ticks: { 
+            color: '#8899aa',
+            maxTicksLimit: 12
+          }
+        },
+        y: {
+          grid: { color: 'rgba(42, 63, 95, 0.3)' },
+          ticks: { 
+            color: '#8899aa',
+            callback: function(value) {
+              return (value > 0 ? '+' : '') + value.toFixed(1) + ' ม.';
+            }
+          },
+          suggestedMin: Math.min(...levels) - 0.2,
+          suggestedMax: Math.max(...levels) + 0.2
+        }
+      }
+    }
+  });
+}
+
+// ===== TIDE TABLE =====
+function renderTideTable() {
+  const container = document.getElementById('tideTableContainer');
+  const stationData = dashboardData.stations[currentStation];
+  
+  let html = '<table class="tide-table"><thead><tr><th>ประเภท</th><th>เวลา</th><th>ระดับน้ำ (MSL)</th></tr></thead><tbody>';
+  
+  for (const h of stationData.highTides) {
+    html += `<tr><td class="high-tide">🔴 น้ำขึ้น</td><td>${h.time}</td><td class="high-tide">+${h.level.toFixed(2)} ม.</td></tr>`;
+  }
+  
+  for (const l of stationData.lowTides) {
+    html += `<tr><td class="low-tide">🔵 น้ำลง</td><td>${l.time}</td><td class="low-tide">${l.level.toFixed(2)} ม.</td></tr>`;
+  }
+  
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+// ===== WORK WINDOWS =====
+function renderWorkWindows() {
+  const container = document.getElementById('workWindows');
+  const stationData = dashboardData.stations[currentStation];
+  const windows = stationData.workWindows;
+  
+  if (windows.length === 0) {
+    container.innerHTML = '<p style="color:var(--danger); font-size:0.85rem;">⚠️ วันนี้ไม่มีช่วงเวลาเข้างานที่เหมาะสม</p>';
+    return;
+  }
+  
+  let html = '';
+  for (const w of windows) {
+    const hours = Math.floor(w.duration / 60);
+    const mins = w.duration % 60;
+    const durText = hours > 0 ? `${hours} ชม. ${mins} นาที` : `${mins} นาที`;
+    
+    html += `
+      <div class="work-window">
+        <div>
+          <div class="time-range">🟢 ${w.start} — ${w.end}</div>
+          <div class="duration">ระยะเวลา: ${durText}</div>
+        </div>
+      </div>
+    `;
+  }
+  
+  container.innerHTML = html;
+}
+
+// ===== STATION INFO =====
+function renderStationInfo() {
+  const container = document.getElementById('stationInfo');
+  const info = dashboardData.stations[currentStation].info;
+  
+  container.innerHTML = `
+    <div style="font-size:0.8rem; line-height:1.8;">
+      <p><strong>ชื่อสถานี:</strong> ${info.name}</p>
+      <p><strong>ชื่ออังกฤษ:</strong> ${info.nameEn}</p>
+      <p><strong>พิกัด:</strong> ${info.lat.toFixed(4)}°N, ${info.lng.toFixed(4)}°E</p>
+      <p><strong>ระดับน้ำเฉลี่ย (MSL):</strong> ${info.msl} ม.</p>
+      <p><strong>หน่วย:</strong> เมตร (MSL)</p>
+    </div>
+  `;
+}
+
+// ===== WEEKLY FORECAST =====
+function renderWeeklyForecast(forecasts) {
+  const container = document.getElementById('weeklyForecast');
+  
+  const dayNames = {
+    'Monday': 'จ.', 'Tuesday': 'อ.', 'Wednesday': 'พ.', 'Thursday': 'พฤ.',
+    'Friday': 'ศ.', 'Saturday': 'ส.', 'Sunday': 'อา.'
+  };
+  
+  let html = '';
+  for (const day of forecasts) {
+    const isToday = day.date === new Date().toISOString().split('T')[0];
+    const station = day.stations[currentStation];
+    const high = station.highTides.length > 0 ? station.highTides[0] : null;
+    const low = station.lowTides.length > 0 ? station.lowTides[0] : null;
+    
+    html += `
+      <div class="day-card ${isToday ? 'today' : ''}">
+        <div class="day-name">${dayNames[day.dayName] || day.dayShort}</div>
+        ${high ? `<div class="day-tide-high">▲ +${high.level.toFixed(2)}</div>` : ''}
+        ${low ? `<div class="day-tide-low">▼ ${low.level.toFixed(2)}</div>` : ''}
+      </div>
+    `;
+  }
+  
+  container.innerHTML = html;
+}
+
+// ===== ALERTS =====
+function checkAlerts() {
+  const banner = document.getElementById('alertBanner');
+  const alertText = document.getElementById('alertText');
+  const stationData = dashboardData.stations[currentStation];
+  
+  // Check if current level is dangerously high
+  const currentLevel = stationData.currentLevel !== undefined ? 
+    stationData.currentLevel : 
+    stationData.tideData[Math.floor(stationData.tideData.length / 2)].level;
+  
+  if (currentLevel > 1.2) {
+    banner.classList.add('show');
+    alertText.textContent = `ระดับน้ำสูงผิดปกติ (${currentLevel.toFixed(2)} ม.) ควรหลีกเลี่ยงการเข้าพื้นที่ก่อสร้าง`;
+  } else if (currentLevel > 0.8) {
+    banner.classList.add('show');
+    alertText.textContent = `ระดับน้ำค่อนข้างสูง (${currentLevel.toFixed(2)} ม.) ควรติดตามสถานะอย่างใกล้ชิด`;
+  } else {
+    banner.classList.remove('show');
+  }
+}
+
+// ===== GOOGLE MAPS =====
+function showMapUnavailable() {
+  const el = document.getElementById('map');
+  el.style.display = 'flex';
+  el.style.alignItems = 'center';
+  el.style.justifyContent = 'center';
+  el.style.color = 'var(--text-dim)';
+  el.style.fontSize = '0.85rem';
+  el.textContent = '🗺️ ใส่ Google Maps API Key ใน index.html เพื่อแสดงแผนที่';
+}
+
+// Called if Maps script fails to load
+window.gm_authFailure = showMapUnavailable;
+
+function initMap() {
+  const projectLocation = { lat: 13.5421, lng: 100.2758 };
+  
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: projectLocation,
+    zoom: 13,
+    styles: [
+      { elementType: 'geometry', stylers: [{ color: '#1a1a2e' }] },
+      { elementType: 'labels.text.stroke', stylers: [{ color: '#0f0f1a' }] },
+      { elementType: 'labels.text.fill', stylers: [{ color: '#8899aa' }] },
+      { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#003366' }] },
+      { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#00a8e8' }] },
+      { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#16213e' }] },
+      { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2a3f5f' }] },
+      { featureType: 'poi', stylers: [{ visibility: 'off' }] }
+    ]
+  });
+  
+  // Project marker
+  new google.maps.Marker({
+    position: projectLocation,
+    map: map,
+    title: 'โครงการบางขุนเทียน',
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 12,
+      fillColor: '#ff6b35',
+      fillOpacity: 0.8,
+      strokeColor: '#ffffff',
+      strokeWeight: 2
+    }
+  });
+  
+  // Station markers
+  const stations = {
+    PHRA_CHULA: { lat: 13.5521, lng: 100.5785, name: 'ป้อมพระจุลจอมเกล้า' },
+    SANDON: { lat: 13.4386, lng: 100.5960, name: 'สันดอน' },
+    THA_CHIN: { lat: 13.5306, lng: 100.2750, name: 'ปากแม่น้ำท่าจีน' }
+  };
+  
+  for (const [key, s] of Object.entries(stations)) {
+    new google.maps.Marker({
+      position: { lat: s.lat, lng: s.lng },
+      map: map,
+      title: s.name,
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 8,
+        fillColor: '#00a8e8',
+        fillOpacity: 0.8,
+        strokeColor: '#ffffff',
+        strokeWeight: 2
+      }
+    });
+  }
+  
+  // Project area polygon (simplified)
+  new google.maps.Polygon({
+    paths: [
+      { lat: 13.5500, lng: 100.2650 },
+      { lat: 13.5500, lng: 100.2850 },
+      { lat: 13.5300, lng: 100.2850 },
+      { lat: 13.5300, lng: 100.2650 }
+    ],
+    strokeColor: '#ff6b35',
+    strokeOpacity: 0.8,
+    strokeWeight: 2,
+    fillColor: '#ff6b35',
+    fillOpacity: 0.1,
+    map: map
+  });
+}
+</script>
+
+</body>
+</html>

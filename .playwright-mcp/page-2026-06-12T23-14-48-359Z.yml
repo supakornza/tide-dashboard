@@ -1,0 +1,160 @@
+- table [ref=e2]:
+  - rowgroup [ref=e3]:
+    - row "แอปพลิเคชันนี้สร้างโดยผู้ใช้ Google Apps Script" [ref=e4]:
+      - cell "แอปพลิเคชันนี้สร้างโดยผู้ใช้ Google Apps Script" [ref=e5]:
+        - banner "แอปพลิเคชันนี้สร้างโดยผู้ใช้ Google Apps Script" [ref=e6]:
+          - generic [ref=e7]:
+            - generic [ref=e8]:
+              - img [ref=e10]
+              - alert [ref=e12]: แอปพลิเคชันนี้สร้างโดยผู้ใช้ Google Apps Script
+            - generic [ref=e13]:
+              - link "รายงานการละเมิด" [ref=e14] [cursor=pointer]:
+                - /url: https://drive.google.com/abuse?id=AKkXjoz-vdtGQlR9P3wGGD5bHiM_ODGiZ39ejr8UijrIZdXddaDxHbhhshujHevK5eHSft1BL0H42PTKQEiWsWX63nkxRwqS8WPxLWsc%3A0&docurl=https%3A%2F%2Fscript.google.com%2Fmacros%2Fs%2FAKfycbz_G3L2yPRVPzD7rtAT_M4xtFnhbajny8qZoqtk7qUNLoeHhDwnId6nHDaxUluT-Ie12g%2Fexec
+              - link "ดูข้อมูลเพิ่มเติม" [ref=e15] [cursor=pointer]:
+                - /url: https://developers.google.com/apps-script
+          - button "ปิด" [ref=e16]:
+            - img [ref=e17]
+    - row [ref=e19]:
+      - cell [ref=e20]:
+        - iframe [ref=e21]:
+          - iframe [ref=f1e2]:
+            - generic [active] [ref=f2e1]:
+              - generic [ref=f2e2]:
+                - generic [ref=f2e3]:
+                  - heading "🌊 Tide Monitor Dashboard" [level=1] [ref=f2e4]
+                  - paragraph [ref=f2e5]: โครงการป้องกันและแก้ไขปัญหาการกัดเซาะชายฝั่งทะเลบางขุนเทียน กรุงเทพมหานคร
+                - generic [ref=f2e6]:
+                  - generic [ref=f2e7]:
+                    - generic [ref=f2e8]: 06:14:47
+                    - generic [ref=f2e9]: วันเสาร์ที่ 13 มิถุนายน 2569
+                  - generic [ref=f2e10]: LIVE
+              - generic [ref=f2e12]:
+                - generic [ref=f2e13]:
+                  - generic [ref=f2e14]: "📅 วันที่:"
+                  - textbox [ref=f2e15]: 2026-06-12
+                - generic [ref=f2e16]:
+                  - generic [ref=f2e17]: "สถานี:"
+                  - generic [ref=f2e18]:
+                    - button "ป้อมพระจุลจอมเกล้า" [ref=f2e19] [cursor=pointer]
+                    - button "สันดอน" [ref=f2e20] [cursor=pointer]
+                    - button "ปากแม่น้ำท่าจีน" [ref=f2e21] [cursor=pointer]
+                - button "วันนี้" [ref=f2e22] [cursor=pointer]
+                - button "🔄 รีเฟรช" [ref=f2e23] [cursor=pointer]
+              - generic [ref=f2e24]:
+                - generic [ref=f2e25]: ⚠️
+                - generic [ref=f2e26]: ระดับน้ำสูงผิดปกติ (1.53 ม.) ควรหลีกเลี่ยงการเข้าพื้นที่ก่อสร้าง
+              - generic [ref=f2e27]:
+                - generic [ref=f2e28]:
+                  - generic [ref=f2e29]:
+                    - generic [ref=f2e30] [cursor=pointer]:
+                      - generic [ref=f2e31]: ปากแม่น้ำท่าจีน
+                      - generic [ref=f2e32]: "+1.35"
+                      - generic [ref=f2e33]: เมตร (MSL)
+                      - generic [ref=f2e34]: — คงที่
+                    - generic [ref=f2e35] [cursor=pointer]:
+                      - generic [ref=f2e36]: สันดอน ปากแม่น้ำเจ้าพระยา
+                      - generic [ref=f2e37]: "+1.40"
+                      - generic [ref=f2e38]: เมตร (MSL)
+                      - generic [ref=f2e39]: — คงที่
+                    - generic [ref=f2e40] [cursor=pointer]:
+                      - generic [ref=f2e41]: ป้อมพระจุลจอมเกล้า
+                      - generic [ref=f2e42]: "+1.53"
+                      - generic [ref=f2e43]: เมตร (MSL)
+                      - generic [ref=f2e44]: — คงที่
+                  - generic [ref=f2e45]:
+                    - generic [ref=f2e46]:
+                      - generic [ref=f2e47]: 📈
+                      - text: กราฟระดับน้ำตลอดวัน
+                    - generic [ref=f2e50]:
+                      - generic [ref=f2e51]: น้ำขึ้นสูงสุด
+                      - generic [ref=f2e53]: น้ำลงต่ำสุด
+                      - generic [ref=f2e55]: ระดับน้ำทะเลเฉลี่ย (MSL)
+                      - generic [ref=f2e57]: ช่วงเวลาเข้างานได้
+                  - generic [ref=f2e59]:
+                    - generic [ref=f2e60]:
+                      - generic [ref=f2e61]: 🗺️
+                      - text: แผนที่พื้นที่โครงการ
+                    - generic [ref=f2e63]:
+                      - region "Map" [ref=f2e64]
+                      - generic [ref=f2e65]:
+                        - generic [ref=f2e151]:
+                          - generic:
+                            - generic:
+                              - img "โครงการบางขุนเทียน" [ref=f2e153] [cursor=pointer]
+                              - img "ป้อมพระจุลจอมเกล้า" [ref=f2e154] [cursor=pointer]
+                              - img "สันดอน" [ref=f2e155] [cursor=pointer]
+                              - img "ปากแม่น้ำท่าจีน" [ref=f2e156] [cursor=pointer]
+                        - iframe [ref=f2e157]:
+                          
+                  - generic [ref=f2e158]:
+                    - generic [ref=f2e159]:
+                      - generic [ref=f2e160]: 📅
+                      - text: พยากรณ์ 7 วันข้างหน้า
+                    - generic [ref=f2e162]: กำลังโหลด...
+                - generic [ref=f2e164]:
+                  - generic [ref=f2e165]:
+                    - generic [ref=f2e166]:
+                      - generic [ref=f2e167]: 🌊
+                      - text: ตารางน้ำขึ้น-น้ำลง
+                    - table [ref=f2e169]:
+                      - rowgroup [ref=f2e170]:
+                        - row "ประเภท เวลา ระดับน้ำ (MSL)" [ref=f2e171]:
+                          - columnheader "ประเภท" [ref=f2e172]
+                          - columnheader "เวลา" [ref=f2e173]
+                          - columnheader "ระดับน้ำ (MSL)" [ref=f2e174]
+                      - rowgroup [ref=f2e175]:
+                        - row "🔴 น้ำขึ้น 05:00 +1.44 ม." [ref=f2e176]:
+                          - cell "🔴 น้ำขึ้น" [ref=f2e177]
+                          - cell "05:00" [ref=f2e178]
+                          - cell "+1.44 ม." [ref=f2e179]
+                        - row "🔵 น้ำลง 23:00 -0.06 ม." [ref=f2e180]:
+                          - cell "🔵 น้ำลง" [ref=f2e181]
+                          - cell "23:00" [ref=f2e182]
+                          - cell "-0.06 ม." [ref=f2e183]
+                  - generic [ref=f2e184]:
+                    - generic [ref=f2e185]:
+                      - generic [ref=f2e186]: 🏗️
+                      - text: ช่วงเวลาแนะนำเข้างาน
+                    - paragraph [ref=f2e187]: ช่วงที่ระดับน้ำเหมาะสมสำหรับการเคลื่อนย้ายเครื่องจักรและขนส่งวัสดุ
+                    - generic [ref=f2e188]:
+                      - generic [ref=f2e190]:
+                        - generic [ref=f2e191]: 🟢 00:00 — 00:30
+                        - generic [ref=f2e192]: "ระยะเวลา: 30 นาที"
+                      - generic [ref=f2e194]:
+                        - generic [ref=f2e195]: 🟢 20:30 — 23:30
+                        - generic [ref=f2e196]: "ระยะเวลา: 3 ชม. 0 นาที"
+                  - generic [ref=f2e197]:
+                    - generic [ref=f2e198]:
+                      - generic [ref=f2e199]: ℹ️
+                      - text: ข้อมูลสถานี
+                    - generic [ref=f2e201]:
+                      - paragraph [ref=f2e202]:
+                        - strong [ref=f2e203]: "ชื่อสถานี:"
+                        - text: ป้อมพระจุลจอมเกล้า
+                      - paragraph [ref=f2e204]:
+                        - strong [ref=f2e205]: "ชื่ออังกฤษ:"
+                        - text: Phra Chulachomklao Fort
+                      - paragraph [ref=f2e206]:
+                        - strong [ref=f2e207]: "พิกัด:"
+                        - text: 13.5380°N, 100.2800°E
+                      - paragraph [ref=f2e208]:
+                        - strong [ref=f2e209]: "ระดับน้ำเฉลี่ย (MSL):"
+                        - text: 0.85 ม.
+                      - paragraph [ref=f2e210]:
+                        - strong [ref=f2e211]: "หน่วย:"
+                        - text: เมตร (MSL)
+                  - generic [ref=f2e212]:
+                    - generic [ref=f2e213]:
+                      - generic [ref=f2e214]: 📚
+                      - text: แหล่งข้อมูล
+                    - generic [ref=f2e215]:
+                      - paragraph [ref=f2e216]: • กรมอุทกศาสตร์ กองทัพเรือ — ตารางทำนายน้ำขึ้นน้ำลง
+                      - paragraph [ref=f2e217]: • กรมเจ้าท่า — ข้อมูลระดับน้ำทะเล
+                      - paragraph [ref=f2e218]: • สถานีสันดอน ปากแม่น้ำเจ้าพระยา
+                      - paragraph [ref=f2e219]: • ป้อมพระจุลจอมเกล้า, สมุทรปราการ
+                      - paragraph [ref=f2e220]: • ปากแม่น้ำท่าจีน, สมุทรสาคร
+                      - paragraph [ref=f2e221]: ⚠️ ข้อมูลเป็นการจำลองตามรูปแบบจริง ควรเช็คกับตารางน้ำขึ้นน้ำลงจริงก่อนเข้างานทุกครั้ง
+              - generic [ref=f2e222]:
+                - text: Tide Monitor Dashboard v1.0 | โครงการป้องกันการกัดเซาะชายฝั่งทะเลบางขุนเทียน | ข้อมูลจำลองตามรูปแบบของ
+                - link "กรมอุทกศาสตร์ กองทัพเรือ" [ref=f2e223] [cursor=pointer]:
+                  - /url: "#"

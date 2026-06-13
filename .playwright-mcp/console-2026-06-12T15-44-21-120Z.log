@@ -1,0 +1,2 @@
+[       0ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://cctv1np.egat.co.th/axis-cgi/mjpg/video.cgi:0
+[     151ms] [ERROR] Failed to load resource: the server responded with a status of 503 (Service Unavailable) @ http://cctv1np.egat.co.th/favicon.ico:0

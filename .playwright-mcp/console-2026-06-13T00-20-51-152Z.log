@@ -1,0 +1,8 @@
+[      92ms] [LOG] protocol https: @ https://tiwrmdev.hii.or.th/v3/resources/themes/thaiwater-fifteen/js/sealevel/graph.js:193
+[      92ms] [LOG] hostname tiwrmdev.hii.or.th @ https://tiwrmdev.hii.or.th/v3/resources/themes/thaiwater-fifteen/js/sealevel/graph.js:194
+[      92ms] [LOG] url http://tiwrmdev.hii.or.th/thaiwater_l5/public/sealevel @ https://tiwrmdev.hii.or.th/v3/resources/themes/thaiwater-fifteen/js/sealevel/graph.js:219
+[      93ms] [ERROR] Mixed Content: The page at 'https://tiwrmdev.hii.or.th/v3/sealevel/graph/station_id=TC' was loaded over HTTPS, but requested an insecure XMLHttpRequest endpoint 'http://tiwrmdev.hii.or.th/thaiwater_l5/public/sealevel/graph/search'. This request has been blocked; the content must be served over HTTPS. @ https://tiwrmdev.hii.or.th/v3/vendor/jquery/dist/jquery.min.js:3
+[    1857ms] [LOG] protocol https: @ https://tiwrmdev.hii.or.th/v3/resources/themes/thaiwater-fifteen/js/sealevel/graph.js:193
+[    1857ms] [LOG] hostname tiwrmdev.hii.or.th @ https://tiwrmdev.hii.or.th/v3/resources/themes/thaiwater-fifteen/js/sealevel/graph.js:194
+[    1857ms] [LOG] url http://tiwrmdev.hii.or.th/thaiwater_l5/public/sealevel @ https://tiwrmdev.hii.or.th/v3/resources/themes/thaiwater-fifteen/js/sealevel/graph.js:219
+[    1857ms] [ERROR] Mixed Content: The page at 'https://tiwrmdev.hii.or.th/v3/sealevel/graph/station_id=TC' was loaded over HTTPS, but requested an insecure XMLHttpRequest endpoint 'http://tiwrmdev.hii.or.th/thaiwater_l5/public/sealevel/graph/search'. This request has been blocked; the content must be served over HTTPS. @ https://tiwrmdev.hii.or.th/v3/vendor/jquery/dist/jquery.min.js:3
