@@ -225,7 +225,8 @@ function calculateDuration(start, end) {
 // ============ TIDE TABLE LOOKUP (กรมอุทกศาสตร์ 2026) ============
 
 /**
- * สร้างข้อมูล 48 จุด (ทุก 30 นาที) โดย cosine interpolation ระหว่าง high/low จากตารางจริง
+ * สร้างข้อมูล 48 จุด (ทุก 30 นาที) โดย interpolation จากตารางน้ำ MSL จริง
+ * รองรับทั้ง format เก่า (high/low 2-4 จุด) และ format ใหม่ (hourly 24 จุด)
  * @param {string} dateStr - YYYY-MM-DD
  * @param {string} stationKey - PHRA_CHULA | SANDON | THA_CHIN
  * @returns {Array|null} tideData array หรือ null ถ้าไม่มีข้อมูลในตาราง
@@ -240,6 +241,10 @@ function getTideDataFromTable(dateStr, stationKey) {
     const parts = p[0].split(':');
     return { mins: parseInt(parts[0]) * 60 + parseInt(parts[1]), level: p[1] };
   }).sort(function(a, b) { return a.mins - b.mins; });
+
+  // ใช้ cosine interpolation สำหรับ high/low data (≤6 จุด)
+  // ใช้ linear interpolation สำหรับ hourly data (>6 จุด) เพื่อความแม่นยำ
+  const useLinear = pts.length > 6;
 
   const tideData = [];
   for (let i = 0; i < 48; i++) {
@@ -259,8 +264,12 @@ function getTideDataFromTable(dateStr, stationKey) {
       level = after.level;
     } else if (!after && before) {
       level = before.level;
+    } else if (useLinear) {
+      // Linear interpolation สำหรับ hourly data
+      const ratio = (slotMins - before.mins) / (after.mins - before.mins);
+      level = Math.round((before.level + ratio * (after.level - before.level)) * 100) / 100;
     } else {
-      // Cosine interpolation: zero slope at each tide extremum
+      // Cosine interpolation: zero slope at each tide extremum (เหมาะกับ high/low data)
       const ratio = (slotMins - before.mins) / (after.mins - before.mins);
       const cosRatio = (1 - Math.cos(Math.PI * ratio)) / 2;
       level = Math.round((before.level + cosRatio * (after.level - before.level)) * 100) / 100;
@@ -500,6 +509,44 @@ function getRealtimeData() {
     };
   }
   
+  return result;
+}
+
+// ============ MONTHLY TIDE TABLE ============
+
+/**
+ * ดึงข้อมูลน้ำขึ้น-ลงรายวันตลอดเดือน สำหรับ ตารางมาตราน้ำ MSL
+ * @param {string} yearMonth - YYYY-MM
+ * @param {string} stationKey - PHRA_CHULA | SANDON | THA_CHIN
+ * @returns {Array} ข้อมูลรายวันพร้อม highTides/lowTides
+ */
+function getMonthlyTideTable(yearMonth, stationKey) {
+  var parts = yearMonth.split('-');
+  var year = parseInt(parts[0]);
+  var month = parseInt(parts[1]);
+  var daysInMonth = new Date(year, month, 0).getDate();
+  var result = [];
+
+  for (var d = 1; d <= daysInMonth; d++) {
+    var dateStr = year + '-' +
+      (month < 10 ? '0' + month : '' + month) + '-' +
+      (d < 10 ? '0' + d : '' + d);
+
+    var tideData = getTideDataFromTable(dateStr, stationKey);
+    if (!tideData) tideData = getTideDataForDate(dateStr, stationKey);
+
+    var hl = findHighLowTide(tideData);
+    var dt = new Date(dateStr + 'T00:00:00+07:00');
+
+    result.push({
+      date: dateStr,
+      day: d,
+      dayName: Utilities.formatDate(dt, 'Asia/Bangkok', 'EEEE'),
+      highTides: hl.highTides,
+      lowTides: hl.lowTides
+    });
+  }
+
   return result;
 }
 
