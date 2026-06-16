@@ -13,7 +13,7 @@
   
   <!-- Google Maps (optional — map section hidden if key not set) -->
   <script>
-    const MAPS_API_KEY = 'AIzaSyCTeQvv1bsXX7i1LRknxqSMvN2D_Xhc4vM';
+    const MAPS_API_KEY = 'AIzaSyCUUO72fGO5HhHkmaSew6nA8InPMaM0qLE';
     if (MAPS_API_KEY !== 'YOUR_GOOGLE_MAPS_API_KEY') {
       const s = document.createElement('script');
       s.src = 'https://maps.googleapis.com/maps/api/js?key=' + MAPS_API_KEY + '&callback=initMap';
@@ -169,6 +169,17 @@
     
     .btn:hover { background: var(--primary-dark); }
     .btn.active { background: var(--secondary); }
+
+    select.resolution-select {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-family: 'Prompt', sans-serif;
+      font-size: 0.82rem;
+      cursor: pointer;
+    }
     
     .station-tabs {
       display: flex;
@@ -509,39 +520,72 @@
     }
 
     .tide-month-table {
-      width: 100%;
       border-collapse: collapse;
-      font-size: 0.8rem;
+      font-size: 0.72rem;
+      white-space: nowrap;
     }
 
     .tide-month-table th {
       background: var(--dark);
       color: var(--text-dim);
-      padding: 8px 12px;
+      padding: 5px 6px;
       text-align: center;
       border-bottom: 2px solid var(--primary);
       font-weight: 500;
-      white-space: nowrap;
     }
 
     .tide-month-table td {
-      padding: 7px 12px;
-      border-bottom: 1px solid rgba(42, 63, 95, 0.4);
+      padding: 3px 4px;
       text-align: center;
       vertical-align: middle;
-      line-height: 1.6;
+      border-bottom: 1px solid rgba(42, 63, 95, 0.25);
+      font-variant-numeric: tabular-nums;
+      min-width: 30px;
     }
 
-    .tide-month-table tr:hover { background: rgba(0, 102, 204, 0.08); }
-    .tide-month-table .today-row { background: rgba(0, 102, 204, 0.12); }
     .tide-month-table .day-cell {
       font-weight: 600;
       color: var(--text);
       text-align: left;
+      padding: 3px 8px;
       white-space: nowrap;
+      background: var(--dark) !important;
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      border-right: 1px solid var(--border);
     }
-    .tide-month-table .high-cell { color: var(--rising); }
-    .tide-month-table .low-cell { color: var(--falling); }
+
+    .tide-month-table .today-row .day-cell {
+      color: var(--secondary);
+    }
+
+    .tide-month-table tr:hover td { filter: brightness(1.15); }
+
+    .msl-color-legend {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 12px;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+    }
+
+    .msl-color-legend .swatch {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .msl-color-legend .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      display: inline-block;
+    }
 
     .msl-info-bar {
       display: flex;
@@ -552,11 +596,6 @@
       color: var(--text-dim);
       border-top: 1px solid var(--border);
       padding-top: 10px;
-    }
-
-    @media (max-width: 768px) {
-      .tide-month-table { font-size: 0.72rem; }
-      .tide-month-table td, .tide-month-table th { padding: 5px 7px; }
     }
   </style>
 </head>
@@ -589,10 +628,22 @@
   <div class="control-group">
     <label>สถานี:</label>
     <div class="station-tabs">
-      <button class="station-tab active" onclick="selectStation('PHRA_CHULA', this)">ป้อมพระจุลจอมเกล้า</button>
-      <button class="station-tab" onclick="selectStation('SANDON', this)">สันดอน</button>
-      <button class="station-tab" onclick="selectStation('THA_CHIN', this)">ปากแม่น้ำท่าจีน</button>
+      <button class="station-tab active" onclick="selectStation('SITE_BKT', this)">หน้างาน BKT</button>
+      <button class="station-tab" onclick="selectStation('PHRA_CHULA', this)">ป้อมพระจุลจอมเกล้า</button>
+      <button class="station-tab" onclick="selectStation('SANDON', this)">สันดอนเจ้าพระยา</button>
+      <button class="station-tab" onclick="selectStation('THA_CHIN', this)">ปากน้ำท่าจีน</button>
     </div>
+  </div>
+  <div class="control-group">
+    <label>📊 มุมมองกราฟ:</label>
+    <select class="resolution-select" id="resolutionSelect" onchange="changeResolution(this.value)">
+      <option value="15min">ราย 15 นาที</option>
+      <option value="hourly" selected>รายชั่วโมง</option>
+      <option value="daily">รายวัน (7 วัน)</option>
+      <option value="weekly">รายสัปดาห์ (4 สัปดาห์)</option>
+      <option value="monthly">รายเดือน (30 วัน)</option>
+      <option value="yearly">รายปี</option>
+    </select>
   </div>
   <button class="btn" onclick="goToToday()">วันนี้</button>
   <button class="btn" onclick="refreshData()">🔄 รีเฟรช</button>
@@ -622,10 +673,16 @@
     <div id="mslTableContainer">
       <div class="loading"><div class="spinner"></div> กำลังโหลด...</div>
     </div>
-    <div class="msl-info-bar">
-      <span>▲ น้ำขึ้นสูงสุด (High Tide)</span>
-      <span>▼ น้ำลงต่ำสุด (Low Tide)</span>
-      <span>หน่วย: เมตร อ้างอิงระดับน้ำทะเลปานกลาง (MSL)</span>
+    <div class="msl-color-legend">
+      <span>ระดับน้ำ (ม. MSL):</span>
+      <span class="swatch"><span class="dot" style="background:rgba(180,40,0,0.85)"></span>≥ +1.5</span>
+      <span class="swatch"><span class="dot" style="background:rgba(220,80,0,0.75)"></span>+1.0–1.5</span>
+      <span class="swatch"><span class="dot" style="background:rgba(255,140,50,0.65)"></span>+0.5–1.0</span>
+      <span class="swatch"><span class="dot" style="background:rgba(200,160,60,0.45)"></span>0–+0.5</span>
+      <span class="swatch"><span class="dot" style="background:rgba(100,130,150,0.3)"></span>±0 (MSL)</span>
+      <span class="swatch"><span class="dot" style="background:rgba(30,160,160,0.55)"></span>0 – −0.5</span>
+      <span class="swatch"><span class="dot" style="background:rgba(0,120,160,0.70)"></span>−0.5 – −1.0</span>
+      <span class="swatch"><span class="dot" style="background:rgba(0,70,130,0.85)"></span>≤ −1.0</span>
     </div>
   </div>
 </div>
@@ -718,12 +775,13 @@
 <!-- FOOTER -->
 <div class="footer">
   Tide Monitor Dashboard v2.0 | โครงการป้องกันการกัดเซาะชายฝั่งทะเลบางขุนเทียน |
-  ข้อมูลระดับน้ำจาก <a href="#">กรมอุทกศาสตร์ กองทัพเรือ</a> (ตารางน้ำ MSL 2026)
+  ข้อมูลระดับน้ำจาก <a href="https://www.navy.mi.th/hydro/" target="_blank" rel="noopener">กรมอุทกศาสตร์ กองทัพเรือ</a> (ตารางน้ำ MSL 2026)
 </div>
 
 <script>
 // ===== GLOBAL STATE =====
-let currentStation = 'PHRA_CHULA';
+let currentStation = 'SITE_BKT';
+let currentResolution = 'hourly';
 let dashboardData = null;
 let weeklyData = null;
 let tideChart = null;
@@ -736,8 +794,9 @@ let mslYearMonth = '';
 document.addEventListener('DOMContentLoaded', function() {
   // Set default date to today
   const today = new Date();
-  const dateStr = today.toISOString().split('T')[0];
+  const dateStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok' }).format(today);
   document.getElementById('datePicker').value = dateStr;
+
   
   // Update clock
   updateClock();
@@ -766,6 +825,31 @@ function updateClock() {
   document.getElementById('currentDate').textContent = now.toLocaleDateString('th-TH', options);
 }
 
+// ===== TOAST NOTIFICATION (แทน alert()) =====
+function showToast(msg, type) {
+  // type: 'error' | 'warn' | 'info'
+  let toast = document.getElementById('_toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = '_toast';
+    Object.assign(toast.style, {
+      position: 'fixed', bottom: '24px', right: '24px', zIndex: '9999',
+      padding: '12px 20px', borderRadius: '8px', maxWidth: '340px',
+      fontSize: '0.85rem', fontFamily: 'Prompt,sans-serif',
+      boxShadow: '0 4px 16px rgba(0,0,0,0.4)', transition: 'opacity 0.4s',
+      lineHeight: '1.5'
+    });
+    document.body.appendChild(toast);
+  }
+  const colors = { error: '#dc3545', warn: '#ffc107', info: '#00a8e8' };
+  toast.style.background = colors[type] || colors.info;
+  toast.style.color = type === 'warn' ? '#1a1a2e' : '#fff';
+  toast.style.opacity = '1';
+  toast.textContent = msg;
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, 4000);
+}
+
 // ===== LOAD DATA =====
 function loadData() {
   const dateStr = document.getElementById('datePicker').value;
@@ -776,7 +860,7 @@ function loadData() {
       renderAll();
     })
     .withFailureHandler(function(err) {
-      alert('เกิดข้อผิดพลาด: ' + err.message);
+      showToast('โหลดข้อมูลล้มเหลว: ' + err.message, 'error');
     })
     .getDashboardData(dateStr);
   
@@ -796,18 +880,19 @@ function refreshData() {
   loadData();
 }
 
-function goToToday() {
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('datePicker').value = today;
-  loadData();
-}
+  function goToToday() {
+    const today = new Date();
+    const dateStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok' }).format(today);
+    document.getElementById('datePicker').value = dateStr;
+    loadData();
+  }
 
 function selectStation(stationKey, btn) {
   currentStation = stationKey;
   document.querySelectorAll('.station-tab').forEach(t => t.classList.remove('active'));
   if (btn) btn.classList.add('active');
   // sync tab highlight when clicked from level card
-  const tabMap = { PHRA_CHULA: 0, SANDON: 1, THA_CHIN: 2 };
+  const tabMap = { SITE_BKT: 0, PHRA_CHULA: 1, SANDON: 2, THA_CHIN: 3 };
   const tabs = document.querySelectorAll('.station-tab');
   if (!btn && tabs[tabMap[stationKey]]) {
     tabs[tabMap[stationKey]].classList.add('active');
@@ -819,9 +904,12 @@ function selectStation(stationKey, btn) {
 // ===== RENDER ALL =====
 function renderAll() {
   if (!dashboardData) return;
-  
   renderLevelCards();
-  renderTideChart();
+  if (currentResolution === '15min' || currentResolution === 'hourly') {
+    renderTideChart();
+  } else {
+    loadChartForResolution();
+  }
   renderTideTable();
   renderWorkWindows();
   renderStationInfo();
@@ -831,44 +919,218 @@ function renderAll() {
 // ===== LEVEL CARDS =====
 function renderLevelCards() {
   const container = document.getElementById('levelDisplay');
+  container.innerHTML = ''; // clear previous content / loading spinner
   const stations = dashboardData.stations;
   
-  let html = '';
   for (const [key, data] of Object.entries(stations)) {
     const statusClass = data.tideStatus || 'stable';
     const statusText = statusClass === 'rising' ? '⬆ น้ำขึ้น' : statusClass === 'falling' ? '⬇ น้ำลง' : '— คงที่';
     const level = data.currentLevel !== undefined ? data.currentLevel : data.tideData[Math.floor(data.tideData.length / 2)].level;
     
-    html += `
-      <div class="level-card" onclick="selectStation('${key}', null)" style="cursor:pointer">
-        <div class="station-name">${data.info.name}</div>
-        <div class="level-value" style="color: ${level > 1.0 ? 'var(--rising)' : level < 0 ? 'var(--falling)' : 'var(--secondary)'}">
-          ${level > 0 ? '+' : ''}${level.toFixed(2)}
-        </div>
-        <div class="level-unit">เมตร (MSL)</div>
-        <div class="tide-status ${statusClass}">${statusText}</div>
-        <div style="font-size:0.65rem;margin-top:4px;color:${data.dataSource==='real'?'var(--success)':data.dataSource==='table'?'var(--info, #4fc3f7)':'var(--text-dim)'}">
-          ${data.dataSource === 'real' ? '📡 ข้อมูลจริง' : data.dataSource === 'table' ? '📋 ตารางน้ำ 2026' : '🔢 จำลอง'}
-        </div>
-      </div>
-    `;
+    const card = document.createElement('div');
+    card.className = 'level-card';
+    card.style.cursor = 'pointer';
+    card.onclick = () => selectStation(key, null);
+
+    const title = document.createElement('div');
+    title.className = 'station-name';
+    title.textContent = data.info.name;
+    card.appendChild(title);
+
+    const value = document.createElement('div');
+    value.className = 'level-value';
+    value.style.color = level > 1.0 ? 'var(--rising)' : level < 0 ? 'var(--falling)' : 'var(--secondary)';
+    value.textContent = (level > 0 ? '+' : '') + level.toFixed(2);
+    card.appendChild(value);
+
+    const unit = document.createElement('div');
+    unit.className = 'level-unit';
+    unit.textContent = 'เมตร (MSL)';
+    card.appendChild(unit);
+
+    const status = document.createElement('div');
+    status.className = `tide-status ${statusClass}`;
+    status.textContent = statusText;
+    card.appendChild(status);
+
+    const source = document.createElement('div');
+    source.style.fontSize = '0.65rem';
+    source.style.marginTop = '4px';
+    source.style.color = data.dataSource === 'real'
+      ? 'var(--success)'
+      : data.dataSource === 'idw'
+        ? 'var(--accent)'
+        : data.dataSource === 'table'
+          ? 'var(--info, #4fc3f7)'
+          : 'var(--text-dim)';
+    
+    let sourceText = '';
+    if (data.dataSource === 'real') sourceText = '📡 ข้อมูลจริง';
+    else if (data.dataSource === 'idw') sourceText = '📍 ประเมินหน้างาน IDW';
+    else if (data.dataSource === 'table') sourceText = '📋 ตารางน้ำ 2026';
+    else sourceText = '🔢 จำลอง';
+    source.textContent = sourceText;
+    card.appendChild(source);
+
+    container.appendChild(card);
   }
-  
-  container.innerHTML = html;
 }
 
 // ===== TIDE CHART =====
+function changeResolution(res) {
+  currentResolution = res;
+  if (res === '15min' || res === 'hourly') {
+    if (dashboardData) renderTideChart();
+  } else {
+    loadChartForResolution();
+  }
+}
+
+function loadChartForResolution() {
+  const dateStr = document.getElementById('datePicker').value;
+  const res = currentResolution;
+
+  if (tideChart) { tideChart.destroy(); tideChart = null; }
+  const ctx = document.getElementById('tideChart');
+  if (ctx) {
+    const context = ctx.getContext('2d');
+    context.clearRect(0, 0, ctx.width, ctx.height);
+  }
+
+  const label = { daily: 'โหลด 7 วัน…', weekly: 'โหลด 4 สัปดาห์…', monthly: 'โหลด 30 วัน…', yearly: 'โหลดรายปี…' }[res] || 'กำลังโหลด…';
+  document.querySelector('.chart-container').innerHTML = `<div class="loading"><div class="spinner"></div> ${label}</div><canvas id="tideChart" style="display:none"></canvas>`;
+
+  const done = (data) => {
+    document.querySelector('.chart-container').innerHTML = '<canvas id="tideChart"></canvas>';
+    if (data.type === 'continuous') renderMultiChart(data);
+    else renderAggregateChart(data);
+  };
+  const fail = (err) => {
+    const wrapper = document.querySelector('.chart-container');
+    wrapper.innerHTML = '<canvas id="tideChart"></canvas>';
+    const p = document.createElement('p');
+    p.style.cssText = 'color:var(--danger);padding:8px';
+    p.textContent = 'เกิดข้อผิดพลาด: ' + err.message;
+    wrapper.appendChild(p);
+    console.error(err);
+  };
+
+  if (res === 'daily') {
+    google.script.run.withSuccessHandler(done).withFailureHandler(fail).getMultiDayChart(dateStr, 7, currentStation);
+  } else if (res === 'weekly') {
+    google.script.run.withSuccessHandler(done).withFailureHandler(fail).getDailyAggregates(dateStr, 28, currentStation);
+  } else if (res === 'monthly') {
+    google.script.run.withSuccessHandler(done).withFailureHandler(fail).getDailyAggregates(dateStr, 30, currentStation);
+  } else if (res === 'yearly') {
+    const year = parseInt(dateStr.split('-')[0]);
+    google.script.run.withSuccessHandler(done).withFailureHandler(fail).getMonthlyAggregates(year, currentStation);
+  }
+}
+
+function renderMultiChart(data) {
+  const ctx = document.getElementById('tideChart').getContext('2d');
+  if (tideChart) tideChart.destroy();
+  tideChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.labels,
+      datasets: [
+        {
+          label: 'ระดับน้ำ (MSL)',
+          data: data.levels,
+          borderColor: '#00a8e8',
+          backgroundColor: 'rgba(0,168,232,0.1)',
+          fill: true, tension: 0.3, pointRadius: 0, borderWidth: 1.5
+        },
+        {
+          label: 'MSL',
+          data: data.labels.map(() => data.msl),
+          borderColor: '#ffd700', borderDash: [5,5], borderWidth: 1, pointRadius: 0, fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false, backgroundColor: 'rgba(22,33,62,0.95)', titleColor: '#00a8e8', bodyColor: '#e0e0e0', borderColor: '#2a3f5f', borderWidth: 1 } },
+      scales: {
+        x: { grid: { color: 'rgba(42,63,95,0.3)' }, ticks: { color: '#8899aa', maxTicksLimit: 14, maxRotation: 0 } },
+        y: { grid: { color: 'rgba(42,63,95,0.3)' }, ticks: { color: '#8899aa', callback: v => (v > 0 ? '+' : '') + v.toFixed(1) + ' ม.' } }
+      }
+    }
+  });
+}
+
+function renderAggregateChart(data) {
+  const ctx = document.getElementById('tideChart').getContext('2d');
+  if (tideChart) tideChart.destroy();
+  tideChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: data.labels,
+      datasets: [
+        {
+          label: 'น้ำขึ้นสูงสุด',
+          data: data.maxLevels,
+          backgroundColor: 'rgba(255,107,53,0.65)', borderColor: '#ff6b35', borderWidth: 1, borderRadius: 3
+        },
+        {
+          label: 'น้ำลงต่ำสุด',
+          data: data.minLevels,
+          backgroundColor: 'rgba(78,205,196,0.65)', borderColor: '#4ecdc4', borderWidth: 1, borderRadius: 3
+        },
+        {
+          label: 'MSL',
+          data: data.labels.map(() => data.msl),
+          type: 'line', borderColor: '#ffd700', borderDash: [5,5], borderWidth: 1.5, pointRadius: 0, fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, labels: { color: '#8899aa', boxWidth: 12, font: { size: 11 } } },
+        tooltip: { mode: 'index', intersect: false, backgroundColor: 'rgba(22,33,62,0.95)', titleColor: '#00a8e8', bodyColor: '#e0e0e0', borderColor: '#2a3f5f', borderWidth: 1 }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(42,63,95,0.3)' }, ticks: { color: '#8899aa', maxTicksLimit: 15, maxRotation: 45 } },
+        y: { grid: { color: 'rgba(42,63,95,0.3)' }, ticks: { color: '#8899aa', callback: v => (v > 0 ? '+' : '') + v.toFixed(1) + ' ม.' } }
+      }
+    }
+  });
+}
+
 function renderTideChart() {
   const ctx = document.getElementById('tideChart').getContext('2d');
   const stationData = dashboardData.stations[currentStation];
-  const tideData = stationData.tideData;
+  const tideData = stationData.tideData; // 48 points @ 30-min
+
+  let labels, levels;
+  if (currentResolution === '15min') {
+    const pts = [];
+    for (let i = 0; i < tideData.length - 1; i++) {
+      pts.push(tideData[i]);
+      const totalMins = i * 30 + 15;
+      const h = Math.floor(totalMins / 60), m = totalMins % 60;
+      const ratio = 0.5;
+      const cr = (1 - Math.cos(Math.PI * ratio)) / 2;
+      pts.push({
+        time: String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0'),
+        level: Math.round((tideData[i].level + cr * (tideData[i+1].level - tideData[i].level)) * 100) / 100
+      });
+    }
+    pts.push(tideData[tideData.length - 1]);
+    labels = pts.map(d => d.time);
+    levels = pts.map(d => d.level);
+  } else {
+    // hourly: every 2nd point
+    const pts = tideData.filter((_, i) => i % 2 === 0);
+    labels = pts.map(d => d.time);
+    levels = pts.map(d => d.level);
+  }
   
-  const labels = tideData.map(d => d.time);
-  const levels = tideData.map(d => d.level);
-  
-  // Find min/max for work window
-  const minWork = -0.3;
-  const maxWork = 0.5;
+  // Find min/max for work window — threshold จาก BKT_Tide_Dashboard_2026_Summary.xlsx
+  const minWork = -0.30;  // dry threshold
+  const maxWork = 0.80;   // MOVE threshold (was 0.5)
   
   if (tideChart) {
     tideChart.destroy();
@@ -1017,64 +1279,103 @@ function renderWorkWindows() {
 // ===== STATION INFO =====
 function renderStationInfo() {
   const container = document.getElementById('stationInfo');
-  const info = dashboardData.stations[currentStation].info;
+  const stationData = dashboardData.stations[currentStation];
+  const info = stationData.info;  // fix: was missing .info
   
-  container.innerHTML = `
-    <div style="font-size:0.8rem; line-height:1.8;">
-      <p><strong>ชื่อสถานี:</strong> ${info.name}</p>
-      <p><strong>ชื่ออังกฤษ:</strong> ${info.nameEn}</p>
-      <p><strong>พิกัด:</strong> ${info.lat.toFixed(4)}°N, ${info.lng.toFixed(4)}°E</p>
-      <p><strong>ระดับน้ำเฉลี่ย (MSL):</strong> ${info.msl} ม.</p>
-      <p><strong>หน่วย:</strong> เมตร (MSL)</p>
-    </div>
-  `;
+  container.innerHTML = '';
+  const infoWrapper = document.createElement('div');
+  infoWrapper.style.fontSize = '0.8rem';
+  infoWrapper.style.lineHeight = '1.8';
+  
+  const rows = [
+    ['ชื่อสถานี', info.name],
+    ['ชื่ออังกฤษ', info.nameEn],
+    ['พิกัด', `${info.lat.toFixed(4)}°N, ${info.lng.toFixed(4)}°E`],
+    ['ระดับอ้างอิง', info.isEstimatedSite ? 'ประเมินระดับน้ำหน้างานด้วย IDW จาก BB/PC/TC' : `${info.msl} ม. MSL`],
+    ['หน่วย', 'เมตร (MSL)'],
+    ['แหล่งข้อมูล', stationData.dataSource === 'idw' ? 'IDW estimate จาก 3 สถานี' : stationData.dataSource],
+  ];
+  rows.forEach(([label, value]) => {
+    const p = document.createElement('p');
+    const strong = document.createElement('strong');
+    strong.textContent = label + ':';
+    p.appendChild(strong);
+    p.appendChild(document.createTextNode(' ' + value));
+    infoWrapper.appendChild(p);
+  });
+  
+  container.appendChild(infoWrapper);
 }
 
 // ===== WEEKLY FORECAST =====
 function renderWeeklyForecast(forecasts) {
   const container = document.getElementById('weeklyForecast');
-  
+  container.innerHTML = '';
+
   const dayNames = {
     'Monday': 'จ.', 'Tuesday': 'อ.', 'Wednesday': 'พ.', 'Thursday': 'พฤ.',
     'Friday': 'ศ.', 'Saturday': 'ส.', 'Sunday': 'อา.'
   };
-  
-  let html = '';
+
+  // Bangkok-aware today string (not UTC)
+  const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok' }).format(new Date());
+
   for (const day of forecasts) {
-    const isToday = day.date === new Date().toISOString().split('T')[0];
+    const isToday = day.date === todayStr;
     const station = day.stations[currentStation];
     const high = station.highTides.length > 0 ? station.highTides[0] : null;
-    const low = station.lowTides.length > 0 ? station.lowTides[0] : null;
-    
-    html += `
-      <div class="day-card ${isToday ? 'today' : ''}">
-        <div class="day-name">${dayNames[day.dayName] || day.dayShort}</div>
-        ${high ? `<div class="day-tide-high">▲ +${high.level.toFixed(2)}</div>` : ''}
-        ${low ? `<div class="day-tide-low">▼ ${low.level.toFixed(2)}</div>` : ''}
-      </div>
-    `;
+    const low  = station.lowTides.length  > 0 ? station.lowTides[0]  : null;
+
+    const card = document.createElement('div');
+    card.className = 'day-card' + (isToday ? ' today' : '');
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'day-name';
+    nameEl.textContent = dayNames[day.dayName] || day.dayShort;
+    card.appendChild(nameEl);
+
+    if (high) {
+      const highEl = document.createElement('div');
+      highEl.className = 'day-tide-high';
+      highEl.textContent = '▲ +' + high.level.toFixed(2);
+      card.appendChild(highEl);
+    }
+    if (low) {
+      const lowEl = document.createElement('div');
+      lowEl.className = 'day-tide-low';
+      lowEl.textContent = '▼ ' + low.level.toFixed(2);
+      card.appendChild(lowEl);
+    }
+
+    container.appendChild(card);
   }
-  
-  container.innerHTML = html;
 }
 
 // ===== ALERTS =====
+// Threshold จาก BKT_Tide_Dashboard_2026_Summary.xlsx:
+//   MOVE threshold = 0.80 ม. | DRY threshold = -0.30 ม. | caution margin = 0.15 ม.
 function checkAlerts() {
   const banner = document.getElementById('alertBanner');
   const alertText = document.getElementById('alertText');
   const stationData = dashboardData.stations[currentStation];
-  
-  // Check if current level is dangerously high
-  const currentLevel = stationData.currentLevel !== undefined ? 
-    stationData.currentLevel : 
+
+  const currentLevel = stationData.currentLevel !== undefined ?
+    stationData.currentLevel :
     stationData.tideData[Math.floor(stationData.tideData.length / 2)].level;
-  
-  if (currentLevel > 1.2) {
+
+  const MOVE_THRESHOLD  = 0.80;   // ห้ามเคลื่อนย้ายเครื่องจักร
+  const CAUTION_LEVEL   = 0.65;   // เผื่อ 0.15 ม. ก่อนถึงเกณฑ์ (cautionMargin)
+  const DANGER_LEVEL    = 1.20;   // ระดับอันตรายสูง
+
+  if (currentLevel > DANGER_LEVEL) {
     banner.classList.add('show');
-    alertText.textContent = `ระดับน้ำสูงผิดปกติ (${currentLevel.toFixed(2)} ม.) ควรหลีกเลี่ยงการเข้าพื้นที่ก่อสร้าง`;
-  } else if (currentLevel > 0.8) {
+    alertText.textContent = `⚠️ ระดับน้ำสูงผิดปกติ (${currentLevel.toFixed(2)} ม.) ห้ามเข้าพื้นที่ก่อสร้างโดยเด็ดขาด`;
+  } else if (currentLevel > MOVE_THRESHOLD) {
     banner.classList.add('show');
-    alertText.textContent = `ระดับน้ำค่อนข้างสูง (${currentLevel.toFixed(2)} ม.) ควรติดตามสถานะอย่างใกล้ชิด`;
+    alertText.textContent = `🚧 ระดับน้ำเกินเกณฑ์เคลื่อนย้าย (${currentLevel.toFixed(2)} ม. > ${MOVE_THRESHOLD} ม.) ห้ามเคลื่อนย้ายเครื่องจักร`;
+  } else if (currentLevel > CAUTION_LEVEL) {
+    banner.classList.add('show');
+    alertText.textContent = `⚡ ระดับน้ำใกล้เกณฑ์เคลื่อนย้าย (${currentLevel.toFixed(2)} ม.) เตรียมหยุดปฏิบัติการ`;
   } else {
     banner.classList.remove('show');
   }
@@ -1130,44 +1431,51 @@ function loadMslTable() {
     .getMonthlyTideTable(mslYearMonth, currentStation);
 }
 
+function levelBg(v) {
+  if (v === null) return 'transparent';
+  if (v >= 1.5)  return 'rgba(180,40,0,0.85)';
+  if (v >= 1.0)  return 'rgba(220,80,0,0.75)';
+  if (v >= 0.5)  return 'rgba(255,140,50,0.65)';
+  if (v >= 0.2)  return 'rgba(200,160,60,0.45)';
+  if (v >= -0.2) return 'rgba(100,130,150,0.3)';
+  if (v >= -0.5) return 'rgba(30,160,160,0.55)';
+  if (v >= -1.0) return 'rgba(0,120,160,0.70)';
+  return 'rgba(0,70,130,0.85)';
+}
+
 function renderMslTable(days) {
   const today = new Date().toISOString().split('T')[0];
   const thaiMonths = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-  const thaiDays = { Monday:'จ.', Tuesday:'อ.', Wednesday:'พ.', Thursday:'พฤ.', Friday:'ศ.', Saturday:'ส.', Sunday:'อา.' };
+  const thaiDays = { Monday:'จ', Tuesday:'อ', Wednesday:'พ', Thursday:'พฤ', Friday:'ศ', Saturday:'ส', Sunday:'อา' };
 
-  let html = '<table class="tide-month-table"><thead><tr>';
-  html += '<th>วันที่</th><th>ครั้งที่ 1</th><th>ครั้งที่ 2</th><th>ครั้งที่ 3</th><th>ครั้งที่ 4</th>';
+  let html = '<div style="overflow-x:auto"><table class="tide-month-table"><thead>';
+  html += '<tr><th rowspan="2" style="min-width:56px;text-align:left;padding:5px 8px">วันที่<br><span style="font-weight:400;font-size:0.85em;opacity:0.7">DATE</span></th>';
+  html += '<th colspan="24" style="text-align:center;padding-bottom:2px;font-size:0.8em">ชั่วโมง — HOURS &nbsp;|&nbsp; ระดับน้ำ (ม.) อ้างอิง MSL</th></tr>';
+  html += '<tr>';
+  for (let h = 0; h < 24; h++) html += `<th>${h}</th>`;
   html += '</tr></thead><tbody>';
 
   for (const day of days) {
     const isToday = day.date === today;
     const parts = day.date.split('-');
-    const dateLabel = parseInt(parts[2]) + ' ' + thaiMonths[parseInt(parts[1]) - 1];
+    const d = parseInt(parts[2]);
+    const m = parseInt(parts[1]);
     const dayShort = thaiDays[day.dayName] || '';
-
-    const events = [
-      ...day.highTides.map(t => ({ ...t, type: 'high' })),
-      ...day.lowTides.map(t => ({ ...t, type: 'low' }))
-    ].sort((a, b) => a.time.localeCompare(b.time));
+    const dateLabel = `${d} ${thaiMonths[m - 1]}`;
 
     html += `<tr class="${isToday ? 'today-row' : ''}">`;
-    html += `<td class="day-cell">${dateLabel}<br><span style="font-size:0.7em;color:var(--text-dim)">${dayShort}${isToday ? ' ◀ วันนี้' : ''}</span></td>`;
+    html += `<td class="day-cell">${dateLabel}${isToday ? ' ◀' : ''}<br><span style="font-size:0.65em;opacity:0.6">${dayShort}</span></td>`;
 
-    for (let i = 0; i < 4; i++) {
-      const e = events[i];
-      if (e) {
-        const cls = e.type === 'high' ? 'high-cell' : 'low-cell';
-        const icon = e.type === 'high' ? '▲' : '▼';
-        const lvl = e.type === 'high' ? `+${e.level.toFixed(2)}` : e.level.toFixed(2);
-        html += `<td class="${cls}">${icon} ${e.time}<br><strong>${lvl} ม.</strong></td>`;
-      } else {
-        html += '<td style="color:var(--text-dim)">—</td>';
-      }
+    for (let h = 0; h < 24; h++) {
+      const v = (day.hourly && day.hourly[h] !== undefined) ? day.hourly[h] : null;
+      const bg = levelBg(v);
+      const fg = v !== null && Math.abs(v) >= 0.5 ? '#fff' : 'var(--text)';
+      html += `<td style="background:${bg};color:${fg}">${v !== null ? v.toFixed(1) : '—'}</td>`;
     }
     html += '</tr>';
   }
 
-  html += '</tbody></table>';
+  html += '</tbody></table></div>';
   document.getElementById('mslTableContainer').innerHTML = html;
 }
 
@@ -1186,7 +1494,8 @@ function showMapUnavailable() {
 window.gm_authFailure = showMapUnavailable;
 
 function initMap() {
-  const projectLocation = { lat: 13.5421, lng: 100.2758 };
+  // พิกัดหน้างาน BKT — อัพเดทจาก BKT_Tide_Dashboard_2026_Summary.xlsx (Sheet: Config)
+  const projectLocation = { lat: 13.529, lng: 100.415 };
   
   map = new google.maps.Map(document.getElementById('map'), {
     center: projectLocation,
@@ -1218,11 +1527,11 @@ function initMap() {
     }
   });
   
-  // Station markers
+  // Station markers — พิกัดอัพเดทจาก BKT_Tide_Dashboard_2026_Summary.xlsx (Sheet: Stations)
   const stations = {
-    PHRA_CHULA: { lat: 13.5521, lng: 100.5785, name: 'ป้อมพระจุลจอมเกล้า' },
-    SANDON: { lat: 13.4386, lng: 100.5960, name: 'สันดอน' },
-    THA_CHIN: { lat: 13.5306, lng: 100.2750, name: 'ปากแม่น้ำท่าจีน' }
+    PHRA_CHULA: { lat: 13.553333, lng: 100.576944, name: 'ป้อมพระจุลจอมเกล้า' },
+    SANDON:     { lat: 13.450278, lng: 100.595278, name: 'สันดอนเจ้าพระยา' },
+    THA_CHIN:   { lat: 13.517778, lng: 100.275,    name: 'ปากน้ำท่าจีน' }
   };
   
   for (const [key, s] of Object.entries(stations)) {
@@ -1241,13 +1550,13 @@ function initMap() {
     });
   }
   
-  // Project area polygon (simplified)
+  // Project area polygon (approximate box around SITE_BKT default coordinate)
   new google.maps.Polygon({
     paths: [
-      { lat: 13.5500, lng: 100.2650 },
-      { lat: 13.5500, lng: 100.2850 },
-      { lat: 13.5300, lng: 100.2850 },
-      { lat: 13.5300, lng: 100.2650 }
+      { lat: 13.5390, lng: 100.4050 },
+      { lat: 13.5390, lng: 100.4250 },
+      { lat: 13.5190, lng: 100.4250 },
+      { lat: 13.5190, lng: 100.4050 }
     ],
     strokeColor: '#ff6b35',
     strokeOpacity: 0.8,

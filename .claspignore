@@ -1,0 +1,11 @@
+DATA/**
+*.py
+*.mjs
+*.png
+*.pdf
+*.log
+*.md
+.git/**
+.claude/**
+.playwright-mcp/**
+google/**
