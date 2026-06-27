@@ -1,0 +1,7 @@
+[    1896ms] [WARNING] An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing. @ about:blank:0
+[    2389ms] [INFO] Net state changed from IDLE to BUSY @ https://script.google.com/static/macros/client/js/2244782800-warden_bin_i18n_warden__th.js:160
+[    4943ms] [INFO] Net state changed from BUSY to IDLE @ https://script.google.com/static/macros/client/js/2244782800-warden_bin_i18n_warden__th.js:160
+[    6190ms] [VERBOSE] Rendering was performed in a subtree hidden by content-visibility. @ :3180
+[   13145ms] [VERBOSE] Rendering was performed in a subtree hidden by content-visibility. @ :3180
+[   62384ms] [INFO] Net state changed from IDLE to BUSY @ https://script.google.com/static/macros/client/js/2244782800-warden_bin_i18n_warden__th.js:160
+[   66959ms] [INFO] Net state changed from BUSY to IDLE @ https://script.google.com/static/macros/client/js/2244782800-warden_bin_i18n_warden__th.js:160

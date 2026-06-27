@@ -1,0 +1,5 @@
+﻿station_id,station_name_th,station_name_en,lat,lon,lat_dms,lon_dms,distance_to_site_km,idw_weight,source_file,source_page_start
+BB,สันดอนเจ้าพระยา (สมุทรปราการ),Bangkok Bar (Samut Prakan),13.450278,100.595278,"13°27'01""N","100°35'43""E",21.368,0.225496,BB2026msl.pdf,12
+PC,ป้อมพระจุลจอมเกล้า (สมุทรปราการ),Phra Chunlachomklao Fort (Samut Prakan),13.553333,100.576944,"13°33'12""N","100°34'37""E",17.715,0.3281,PC2026msl.pdf,12
+TC,ปากน้ำท่าจีน (สมุทรสาคร),Pak Nam Tha Chin (Samut Sakhon),13.517778,100.275,"13°31'04""N","100°16'30""E",15.187,0.446404,TC2026msl.pdf,12
+SITE_BKT,พื้นที่ป่าชายเลนบางขุนเทียน (ค่าเริ่มต้น ปรับพิกัดได้),"Bang Khun Thian Mangrove Coast (default, editable)",13.529,100.415,,,0,1,"Calculated from BB, PC, TC",

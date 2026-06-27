@@ -1365,12 +1365,8 @@ function checkAlerts() {
 
   const MOVE_THRESHOLD  = 0.80;   // ห้ามเคลื่อนย้ายเครื่องจักร
   const CAUTION_LEVEL   = 0.65;   // เผื่อ 0.15 ม. ก่อนถึงเกณฑ์ (cautionMargin)
-  const DANGER_LEVEL    = 1.20;   // ระดับอันตรายสูง
 
-  if (currentLevel > DANGER_LEVEL) {
-    banner.classList.add('show');
-    alertText.textContent = `⚠️ ระดับน้ำสูงผิดปกติ (${currentLevel.toFixed(2)} ม.) ห้ามเข้าพื้นที่ก่อสร้างโดยเด็ดขาด`;
-  } else if (currentLevel > MOVE_THRESHOLD) {
+  if (currentLevel > MOVE_THRESHOLD) {
     banner.classList.add('show');
     alertText.textContent = `🚧 ระดับน้ำเกินเกณฑ์เคลื่อนย้าย (${currentLevel.toFixed(2)} ม. > ${MOVE_THRESHOLD} ม.) ห้ามเคลื่อนย้ายเครื่องจักร`;
   } else if (currentLevel > CAUTION_LEVEL) {

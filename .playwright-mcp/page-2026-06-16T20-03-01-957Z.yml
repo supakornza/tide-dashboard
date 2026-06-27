@@ -1,0 +1,108 @@
+- table [ref=e2]:
+  - rowgroup [ref=e3]:
+    - row "แอปพลิเคชันนี้สร้างโดยผู้ใช้ Google Apps Script" [ref=e4]:
+      - cell "แอปพลิเคชันนี้สร้างโดยผู้ใช้ Google Apps Script" [ref=e5]:
+        - banner "แอปพลิเคชันนี้สร้างโดยผู้ใช้ Google Apps Script" [ref=e6]:
+          - generic [ref=e7]:
+            - generic [ref=e8]:
+              - img [ref=e10]
+              - alert [ref=e12]: แอปพลิเคชันนี้สร้างโดยผู้ใช้ Google Apps Script
+            - generic [ref=e13]:
+              - link "รายงานการละเมิด" [ref=e14] [cursor=pointer]:
+                - /url: https://drive.google.com/abuse?id=AKkXjoz-vdtGQlR9P3wGGD5bHiM_ODGiZ39ejr8UijrIZdXddaDxHbhhshujHevK5eHSft1BL0H42PTKQEiWsWX63nkxRwqS8WPxLWsc%3A0&docurl=https%3A%2F%2Fscript.google.com%2Fmacros%2Fs%2FAKfycbylradqB4K26XiLWb5SKdpjhZFNJsNCOtSjMfxNys_AcsXjUG9jEsSyk7-ntepbS05J_w%2Fexec
+              - link "ดูข้อมูลเพิ่มเติม" [ref=e15] [cursor=pointer]:
+                - /url: https://developers.google.com/apps-script
+          - button "ปิด" [ref=e16]:
+            - img [ref=e17]
+    - row [ref=e19]:
+      - cell [ref=e20]:
+        - iframe [ref=e21]:
+          - iframe [ref=f25e2]:
+            - generic [active] [ref=f26e1]:
+              - generic [ref=f26e2]:
+                - generic [ref=f26e3]:
+                  - heading "🌊 Tide Monitor Dashboard" [level=1] [ref=f26e4]
+                  - paragraph [ref=f26e5]: โครงการป้องกันและแก้ไขปัญหาการกัดเซาะชายฝั่งทะเลบางขุนเทียน กรุงเทพมหานคร
+                - generic [ref=f26e6]:
+                  - generic [ref=f26e7]:
+                    - generic [ref=f26e8]: 03:03:01
+                    - generic [ref=f26e9]: วันพุธที่ 17 มิถุนายน 2569
+                  - generic [ref=f26e10]: LIVE
+              - generic [ref=f26e12]:
+                - generic [ref=f26e13]:
+                  - generic [ref=f26e14]: "📅 วันที่:"
+                  - textbox [ref=f26e15]: 2026-06-17
+                - generic [ref=f26e16]:
+                  - generic [ref=f26e17]: "สถานี:"
+                  - generic [ref=f26e18]:
+                    - button "หน้างาน BKT" [ref=f26e19] [cursor=pointer]
+                    - button "ป้อมพระจุลจอมเกล้า" [ref=f26e20] [cursor=pointer]
+                    - button "สันดอนเจ้าพระยา" [ref=f26e21] [cursor=pointer]
+                    - button "ปากน้ำท่าจีน" [ref=f26e22] [cursor=pointer]
+                - generic [ref=f26e23]:
+                  - generic [ref=f26e24]: "📊 มุมมองกราฟ:"
+                  - combobox [ref=f26e25] [cursor=pointer]:
+                    - option "ราย 15 นาที"
+                    - option "รายชั่วโมง" [selected]
+                    - option "รายวัน (7 วัน)"
+                    - option "รายสัปดาห์ (4 สัปดาห์)"
+                    - option "รายเดือน (30 วัน)"
+                    - option "รายปี"
+                - button "วันนี้" [ref=f26e26] [cursor=pointer]
+                - button "🔄 รีเฟรช" [ref=f26e27] [cursor=pointer]
+                - button "📋 ตารางน้ำ MSL" [ref=f26e28] [cursor=pointer]
+              - generic [ref=f26e29]:
+                - generic [ref=f26e30]:
+                  - generic [ref=f26e32]: กำลังโหลดข้อมูล...
+                  - generic [ref=f26e34]:
+                    - generic [ref=f26e35]:
+                      - generic [ref=f26e36]: 📈
+                      - text: กราฟระดับน้ำตลอดวัน
+                    - generic [ref=f26e39]:
+                      - generic [ref=f26e40]: น้ำขึ้นสูงสุด
+                      - generic [ref=f26e42]: น้ำลงต่ำสุด
+                      - generic [ref=f26e44]: ระดับน้ำทะเลเฉลี่ย (MSL)
+                      - generic [ref=f26e46]: ช่วงเวลาเข้างานได้
+                  - generic [ref=f26e48]:
+                    - generic [ref=f26e49]:
+                      - generic [ref=f26e50]: 🗺️
+                      - text: แผนที่พื้นที่โครงการ
+                    - generic [ref=f26e51]: 🗺️ ใส่ Google Maps API Key ใน index.html เพื่อแสดงแผนที่
+                  - generic [ref=f26e52]:
+                    - generic [ref=f26e53]:
+                      - generic [ref=f26e54]: 📅
+                      - text: พยากรณ์ 7 วันข้างหน้า
+                    - generic [ref=f26e56]: กำลังโหลด...
+                - generic [ref=f26e58]:
+                  - generic [ref=f26e59]:
+                    - generic [ref=f26e60]:
+                      - generic [ref=f26e61]: 🌊
+                      - text: ตารางน้ำขึ้น-น้ำลง
+                    - generic [ref=f26e63]: กำลังโหลด...
+                  - generic [ref=f26e65]:
+                    - generic [ref=f26e66]:
+                      - generic [ref=f26e67]: 🏗️
+                      - text: ช่วงเวลาแนะนำเข้างาน
+                    - paragraph [ref=f26e68]: ช่วงที่ระดับน้ำเหมาะสมสำหรับการเคลื่อนย้ายเครื่องจักรและขนส่งวัสดุ
+                    - generic [ref=f26e70]: กำลังโหลด...
+                  - generic [ref=f26e72]:
+                    - generic [ref=f26e73]:
+                      - generic [ref=f26e74]: ℹ️
+                      - text: ข้อมูลสถานี
+                    - generic [ref=f26e76]: กำลังโหลด...
+                  - generic [ref=f26e78]:
+                    - generic [ref=f26e79]:
+                      - generic [ref=f26e80]: 📚
+                      - text: แหล่งข้อมูล
+                    - generic [ref=f26e81]:
+                      - paragraph [ref=f26e82]: • กรมอุทกศาสตร์ กองทัพเรือ — ตารางทำนายน้ำขึ้นน้ำลง
+                      - paragraph [ref=f26e83]: • กรมเจ้าท่า — ข้อมูลระดับน้ำทะเล
+                      - paragraph [ref=f26e84]: • สถานีสันดอน ปากแม่น้ำเจ้าพระยา
+                      - paragraph [ref=f26e85]: • ป้อมพระจุลจอมเกล้า, สมุทรปราการ
+                      - paragraph [ref=f26e86]: • ปากแม่น้ำท่าจีน, สมุทรสาคร
+                      - paragraph [ref=f26e87]: ✅ ข้อมูลจากตารางน้ำ MSL จริง (กรมอุทกศาสตร์ 2026) — ค่าระดับน้ำรายชั่วโมงตลอดปี
+              - generic [ref=f26e88]:
+                - text: Tide Monitor Dashboard v2.0 | โครงการป้องกันการกัดเซาะชายฝั่งทะเลบางขุนเทียน | ข้อมูลระดับน้ำจาก
+                - link "กรมอุทกศาสตร์ กองทัพเรือ" [ref=f26e89] [cursor=pointer]:
+                  - /url: https://www.navy.mi.th/hydro/
+                - text: (ตารางน้ำ MSL 2026)

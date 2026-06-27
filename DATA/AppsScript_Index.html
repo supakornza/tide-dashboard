@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=PASTE_GOOGLE_MAPS_API_KEY_HERE"></script>
+  <style>
+    body{font-family:Arial,"Noto Sans Thai",sans-serif;margin:0;background:#f7f9fb;color:#123;}
+    header{background:#0f766e;color:white;padding:16px 22px;}
+    main{padding:16px;display:grid;gap:16px;grid-template-columns:1fr;}
+    .card{background:white;border:1px solid #d9e2e7;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+    .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:end;}
+    label{font-size:12px;color:#345;display:block;margin-bottom:4px;}
+    input,select,button{padding:8px;border:1px solid #bac8d3;border-radius:8px;}
+    button{background:#0f766e;color:white;border:0;cursor:pointer;}
+    #chart{height:420px;}
+    #map{height:420px;border-radius:10px;}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    @media(max-width:900px){.grid2{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<header>
+  <h2>Bang Khun Thian Tide Monitoring Dashboard 2026</h2>
+  <div>สำหรับวางแผน Tug Boat, Loading Barge และ Crane Barge ตามระดับน้ำขึ้น-น้ำลง</div>
+</header>
+<main>
+  <section class="card controls">
+    <div><label>Start date</label><input id="startDate" type="date" value="2026-01-01"></div>
+    <div><label>End date</label><input id="endDate" type="date" value="2026-01-07"></div>
+    <div><label>Entity</label><select id="entityId"><option value="SITE_BKT">SITE_BKT</option><option value="BB">BB</option><option value="PC">PC</option><option value="TC">TC</option></select></div>
+    <div><label>Granularity</label><select id="granularity"><option value="hour">Hourly</option><option value="minute">Minute interpolation</option></select></div>
+    <button onclick="loadData()">Update</button>
+  </section>
+  <section class="grid2">
+    <div class="card"><h3>กราฟทำนายน้ำ</h3><div id="chart"></div></div>
+    <div class="card"><h3>แผนที่สถานี</h3><div id="map"></div></div>
+  </section>
+</main>
+<script>
+google.charts.load('current', {'packages':['corechart']});
+google.charts.setOnLoadCallback(loadData);
+function loadData(){
+  const params = {
+    startDate: document.getElementById('startDate').value,
+    endDate: document.getElementById('endDate').value,
+    entityId: document.getElementById('entityId').value
+  };
+  if(document.getElementById('granularity').value === 'minute' && params.startDate === params.endDate){
+    google.script.run.withSuccessHandler(drawChart).getMinuteSeries({date: params.startDate, entityId: params.entityId});
+  } else {
+    google.script.run.withSuccessHandler(drawChart).getDashboardData(params);
+  }
+  google.script.run.withSuccessHandler(drawMap).getStationMarkers();
+}
+function drawChart(rows){
+  const data = new google.visualization.DataTable();
+  data.addColumn('datetime','เวลา');
+  data.addColumn('number','ระดับน้ำ (m)');
+  rows.forEach(r => data.addRow([new Date(r.datetime_th.replace(' ', 'T') + ':00+07:00'), r.water_level_m]));
+  const options = {legend:{position:'bottom'}, chartArea:{left:60,top:30,width:'82%',height:'70%'}, hAxis:{format:'dd MMM HH:mm'}, vAxis:{title:'Water level (m)'}};
+  new google.visualization.LineChart(document.getElementById('chart')).draw(data, options);
+}
+function drawMap(markers){
+  const center = {lat:13.5290,lng:100.4150};
+  const map = new google.maps.Map(document.getElementById('map'), {zoom:10, center});
+  markers.forEach(m => {
+    const marker = new google.maps.Marker({position:{lat:m.lat,lng:m.lon}, map, title:m.entity_id + ' ' + m.name_th});
+    const info = new google.maps.InfoWindow({content:`<b>${m.entity_id}</b><br>${m.name_th}<br>${m.name_en}<br>${m.lat.toFixed(6)}, ${m.lon.toFixed(6)}`});
+    marker.addListener('click', () => info.open({anchor: marker, map}));
+  });
+}
+</script>
+</body>
+</html>

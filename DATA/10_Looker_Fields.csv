@@ -1,0 +1,13 @@
+﻿field_name,field_type,description,recommended_use
+entity_id,Dimension,รหัสสถานีหรือพื้นที่ SITE_BKT,Filter / map marker
+entity_type,Dimension,station หรือ estimated_site,Filter
+datetime_th,DateTime,วัน-เวลา Thailand time,Date range / time series
+date,Date,วันที่,Daily aggregation
+month_name_th,Dimension,เดือนภาษาไทย,Monthly chart
+water_level_m,Metric,ระดับน้ำเมตรตาม datum แหล่งข้อมูล/ประมาณค่า,Line chart
+lat,Geo,Latitude WGS84,Google map
+lon,Geo,Longitude WGS84,Google map
+status,Dimension,MOVE_WINDOW / DRY_WORK_WINDOW / TRANSITION,Construction window status
+move_flag,Metric,1 เมื่อระดับน้ำ >= move_threshold_m,SUM for move hours
+dry_flag,Metric,1 เมื่อระดับน้ำ <= dry_threshold_m,SUM for dry hours
+source,Dimension,ไฟล์ต้นทางหรือวิธีคำนวณ,Audit trail

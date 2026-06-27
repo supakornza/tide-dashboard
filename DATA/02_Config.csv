@@ -1,0 +1,10 @@
+﻿parameter,value,unit,description
+site_id,SITE_BKT,,รหัสพื้นที่ประมาณค่าระดับน้ำ
+site_name_th,พื้นที่ป่าชายเลนบางขุนเทียน (ค่าเริ่มต้น ปรับพิกัดได้),,ชื่อพื้นที่
+site_lat,13.529,deg,พิกัด latitude WGS84 ปรับตามจุดหน้างานจริง
+site_lon,100.415,deg,พิกัด longitude WGS84 ปรับตามจุดหน้างานจริง
+move_threshold_m,0.8,m,ระดับน้ำตั้งต้นสำหรับเคลื่อนย้าย tug boat / loading barge / crane barge
+dry_threshold_m,-0.3,m,ระดับน้ำตั้งต้นสำหรับช่วงแห้ง/ท้องติดเลนเพื่อพิจารณาตอกเสาเข็ม
+caution_margin_m,0.15,m,ส่วนเผื่อเตือนก่อนถึงเกณฑ์
+idw_power,2,,กำลังของการถ่วงน้ำหนักระยะทาง IDW
+timezone,Asia/Bangkok,,เวลามาตรฐานประเทศไทย UTC+7

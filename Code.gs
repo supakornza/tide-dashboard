@@ -24,35 +24,50 @@
 // ============ CONFIGURATION ============
 const CONFIG = {
   PROJECT_NAME: "โครงการป้องกันและแก้ไขปัญหาการกัดเซาะชายฝั่งทะเลบางขุนเทียน",
+  // พิกัดหน้างาน BKT — อัพเดทจาก BKT_Tide_Dashboard_2026_Summary.xlsx (Sheet: Config)
   LOCATION: {
     name: "บางขุนเทียน, กรุงเทพมหานคร",
-    lat: 13.5421,
-    lng: 100.2758
+    lat: 13.529,   // was 13.5421
+    lng: 100.415   // was 100.2758
   },
+  // พิกัดสถานี — อัพเดทจาก Sheet: Stations (WGS84 ทศนิยม 6 ตำแหน่ง)
   STATIONS: {
     PHRA_CHULA: {
       name: "ป้อมพระจุลจอมเกล้า",
-      nameEn: "Phra Chulachomklao Fort",
-      lat: 13.5521,
-      lng: 100.5785,
-      msl: 0.85,  // Mean Sea Level in meters (MSL)
-      unit: "MSL"
+      nameEn: "Phra Chunlachomklao Fort (Samut Prakan)",
+      lat: 13.553333,   // was 13.5521
+      lng: 100.576944,  // was 100.5785
+      msl: 0.85,
+      unit: "MSL",
+      idwWeight: 0.3281  // IDW weight for BKT site estimation
     },
     SANDON: {
-      name: "สันดอน ปากแม่น้ำเจ้าพระยา",
-      nameEn: "Sandon, Chao Phraya River Mouth",
-      lat: 13.4386,
-      lng: 100.5960,
+      name: "สันดอนเจ้าพระยา",
+      nameEn: "Bangkok Bar (Samut Prakan)",
+      lat: 13.450278,   // was 13.4386
+      lng: 100.595278,  // was 100.5960
       msl: 0.72,
-      unit: "MSL"
+      unit: "MSL",
+      idwWeight: 0.225496
     },
     THA_CHIN: {
-      name: "ปากแม่น้ำท่าจีน",
-      nameEn: "Tha Chin River Mouth",
-      lat: 13.5306,
-      lng: 100.2750,
+      name: "ปากน้ำท่าจีน",
+      nameEn: "Pak Nam Tha Chin (Samut Sakhon)",
+      lat: 13.517778,   // was 13.5306
+      lng: 100.275,     // was 100.2750
       msl: 0.68,
-      unit: "MSL"
+      unit: "MSL",
+      idwWeight: 0.446404
+    },
+    SITE_BKT: {
+      name: "พื้นที่ป่าชายเลนบางขุนเทียน",
+      nameEn: "Bang Khun Thian Mangrove Coast (IDW estimate)",
+      lat: 13.529,
+      lng: 100.415,
+      msl: 0.0,
+      unit: "MSL",
+      isEstimatedSite: true,
+      sourceStations: ["SANDON", "PHRA_CHULA", "THA_CHIN"]
     }
   },
   // ค่าน้ำขึ้นน้ำลงเฉลี่ย (Harmonic Constants แบบ simplified)
@@ -76,11 +91,15 @@ const CONFIG = {
     SANDON:    { M2: 0.9, S2: 1.3, K1: 2.2, O1: 1.9 },
     THA_CHIN:  { M2: 1.0, S2: 1.4, K1: 2.3, O1: 2.0 }
   },
-  // ช่วงเวลาแนะนำเข้างาน (น้ำต่ำ)
+  // ช่วงเวลาแนะนำเข้างาน — อัพเดทจาก BKT_Tide_Dashboard_2026_Summary.xlsx (Sheet: Config)
+  // move_threshold_m = 0.8 (เคลื่อนย้าย tug/barge/crane)
+  // dry_threshold_m  = -0.3 (แห้ง/ท้องติดเลน)
+  // caution_margin_m = 0.15 (ส่วนเผื่อเตือนล่วงหน้า)
   WORK_WINDOW: {
-    minTideLevel: -0.3,  // ระดับน้ำขั้นต่ำที่เข้างานได้ (MSL)
-    maxTideLevel: 0.5,   // ระดับน้ำสูงสุดที่ยังเข้างานได้ (MSL)
-    advanceHours: 2      // แจ้งเตือนล่วงหน้า (ชั่วโมง)
+    minTideLevel: -0.30,  // dry threshold (was -0.3, unchanged)
+    maxTideLevel: 0.80,   // MOVE threshold — was 0.5, now 0.8 per xlsx
+    cautionMargin: 0.15,  // warn this many metres before hitting threshold (new)
+    advanceHours: 2       // แจ้งเตือนล่วงหน้า (ชั่วโมง)
   },
   // API จริงจากกรมเจ้าท่า
   // DataLevelWater = gauge height (ม. จาก datum ของสถานี)
@@ -89,7 +108,14 @@ const CONFIG = {
   REAL_STATIONS: {
     THA_CHIN: { code: 'MD05', datumOffset: 2.50 }
   },
-  MD_API_URL: 'http://hydro.md.go.th/Services/ServicesMD.asmx/GetDataReportchart'
+  MD_API_URL: 'https://hydro.md.go.th/Services/ServicesMD.asmx/GetDataReportchart',
+
+  // ============ Port Monitoring API (ป้อมพระจุลจอมเกล้า) ============
+  // ใช้เป็นแหล่งข้อมูลจริงสำหรับ PHRA_CHULA
+  PORT_MONITORING: {
+    base_url: 'http://203.147.59.19:3001',
+    station_id: 38,   // ป้อมพระจุลจอมเกล้า
+  }
 };
 
 // ============ MAIN ENTRY POINTS ============
@@ -181,8 +207,9 @@ function findHighLowTide(tideData) {
  */
 function findWorkWindows(tideData) {
   const windows = [];
-  const minLevel = CONFIG.WORK_WINDOW.minTideLevel;
-  const maxLevel = CONFIG.WORK_WINDOW.maxTideLevel;
+  const minLevel = CONFIG.WORK_WINDOW.minTideLevel;   // -0.30 ม. (dry threshold)
+  const maxLevel = CONFIG.WORK_WINDOW.maxTideLevel;   // 0.80 ม. (MOVE threshold)
+  const caution  = CONFIG.WORK_WINDOW.cautionMargin;  // 0.15 ม.
   
   let inWindow = false;
   let windowStart = null;
@@ -310,7 +337,10 @@ function fetchRealTideData(dateStr, stationCode, datumOffset) {
       followRedirects: true
     });
 
-    if (response.getResponseCode() !== 200) return null;
+    if (response.getResponseCode() !== 200) {
+      Logger.log('fetchRealTideData: HTTP ' + response.getResponseCode() + ' for station ' + stationCode);
+      return null;
+    }
 
     const raw = JSON.parse(response.getContentText());
     if (!Array.isArray(raw) || raw.length === 0) return null;
@@ -366,6 +396,294 @@ function fetchRealTideData(dateStr, stationCode, datumOffset) {
   }
 }
 
+// ============ PORT MONITORING API (ป้อมพระจุลจอมเกล้า) ============
+
+/**
+ * ดึงระดับน้ำล่าสุดจาก Port Monitoring API (/stations/{id})
+ * @param {number} stationId - รหัสสถานี (38 = ป้อมพระจุลจอมเกล้า)
+ * @returns {{level: number, time: string, source: string}|null}
+ */
+function fetchPortMonitoringLatest(stationId) {
+  try {
+    const url = CONFIG.PORT_MONITORING.base_url + '/stations/' + stationId;
+    const response = UrlFetchApp.fetch(url, {
+      method: 'get',
+      muteHttpExceptions: true
+    });
+
+    if (response.getResponseCode() !== 200) {
+      Logger.log('fetchPortMonitoringLatest: HTTP ' + response.getResponseCode());
+      return null;
+    }
+
+    const data = JSON.parse(response.getContentText());
+    if (!data || !data.sensors || data.sensors.length === 0) return null;
+
+    // sensor[0] = ป้อมพระจุล → parameters → find parameter with unit 'ม.' (water level)
+    const sensor = data.sensors[0];
+    if (!sensor.parameters || sensor.parameters.length === 0) return null;
+
+    let waterParam = null;
+    for (let i = 0; i < sensor.parameters.length; i++) {
+      if (sensor.parameters[i].unit && sensor.parameters[i].unit.includes('ม.')) {
+        waterParam = sensor.parameters[i];
+        break;
+      }
+    }
+    if (!waterParam) waterParam = sensor.parameters[0];
+
+    const latestData = waterParam.data;
+    if (!latestData || latestData.length === 0) return null;
+
+    // data[-1] = ล่าสุด
+    const lastReading = latestData[latestData.length - 1];
+    const level = parseFloat(lastReading.value);
+    if (isNaN(level)) return null;
+
+    return {
+      level: Math.round(level * 100) / 100,
+      time: lastReading.time || '',
+      source: 'port_monitoring'
+    };
+  } catch (e) {
+    Logger.log('fetchPortMonitoringLatest error: ' + e.message);
+    return null;
+  }
+}
+
+/**
+ * ดึงข้อมูลประวัติ (/history/{id}?hours=N) แปลงเป็น tideData format
+ * @param {number} stationId
+ * @param {number} hours - ช่วงเวลาย้อนหลัง (1, 6, 12, 24)
+ * @returns {Array|null} tideData array หรือ null
+ */
+function fetchPortMonitoringHistory(stationId, hours) {
+  try {
+    const url = CONFIG.PORT_MONITORING.base_url + '/history/' + stationId + '?hours=' + hours;
+    const response = UrlFetchApp.fetch(url, {
+      method: 'get',
+      muteHttpExceptions: true
+    });
+
+    if (response.getResponseCode() !== 200) return null;
+
+    const data = JSON.parse(response.getContentText());
+    if (!data || !data.chartDataPoints || data.chartDataPoints.length === 0) return null;
+
+    // หา water level parameter (unit มี 'ม.')
+    let waterParam = null;
+    for (let i = 0; i < data.chartDataPoints.length; i++) {
+      if (data.chartDataPoints[i].parameter &&
+          data.chartDataPoints[i].parameter.includes('ม.')) {
+        waterParam = data.chartDataPoints[i];
+        break;
+      }
+    }
+    // fallback: ตัวแรกที่มี data
+    if (!waterParam) {
+      for (let i = 0; i < data.chartDataPoints.length; i++) {
+        if (data.chartDataPoints[i].data && data.chartDataPoints[i].data.length > 0) {
+          waterParam = data.chartDataPoints[i];
+          break;
+        }
+      }
+    }
+    if (!waterParam || !waterParam.data || waterParam.data.length === 0) return null;
+
+    // แปลงเป็น tideData format
+    const tideData = [];
+    const pts = waterParam.data;
+
+    // ถ้า hours >= 24 ใช้ทุกจุดข้อมูล, ถ้า < 24 downsample เป็นทุก 30 นาที
+    if (hours <= 6) {
+      // สqueeze เป็น 30-min slots สำหรับ timeframe สั้น
+      const byLabel = {};
+      pts.forEach(function(p) {
+        if (p.y !== null && p.y !== undefined && p.label) {
+          // เก็บค่าล่าสุดของแต่ละ label
+          byLabel[p.label] = parseFloat(p.y);
+        }
+      });
+
+      const slots = {};
+      Object.keys(byLabel).sort().forEach(function(label) {
+        const timeMatch = label.match(/(\d{1,2}):(\d{2})/);
+        if (timeMatch) {
+          const slotMins = parseInt(timeMatch[1]) * 60 + parseInt(timeMatch[2]);
+          const rounded = Math.round(slotMins / 30) * 30;
+          if (!slots[rounded]) slots[rounded] = byLabel[label];
+        }
+      });
+
+      for (let i = 0; i < 48; i++) {
+        const totalMins = i * 30;
+        const h = Math.floor(totalMins / 60);
+        const m = totalMins % 60;
+        const timeStr = (h < 10 ? '0' + h : '' + h) + ':' + (m < 10 ? '0' + m : '' + m);
+        const level = slots[totalMins] !== undefined ? Math.round(slots[totalMins] * 100) / 100 : null;
+        tideData.push({ time: timeStr, level: level, hour: h + m / 60, isReal: true });
+      }
+    } else {
+      // timeframe ยาว (12-24h): ใช้ทุกจุดข้อมูล
+      pts.forEach(function(p) {
+        if (p.y !== null && p.y !== undefined && p.label) {
+          const timeMatch = p.label.match(/(\d{1,2}):(\d{2})/);
+          if (timeMatch) {
+            const h = parseInt(timeMatch[1]);
+            const m = parseInt(timeMatch[2]);
+            tideData.push({
+              time: (h < 10 ? '0' + h : '' + h) + ':' + (m < 10 ? '0' + m : '' + m),
+              level: Math.round(parseFloat(p.y) * 100) / 100,
+              hour: h + m / 60,
+              isReal: true
+            });
+          }
+        }
+      });
+    }
+
+    return tideData.length > 0 ? tideData : null;
+  } catch (e) {
+    Logger.log('fetchPortMonitoringHistory error: ' + e.message);
+    return null;
+  }
+}
+
+// ============ DATA SOURCE RESOLUTION ============
+
+/**
+ * ดึงข้อมูล tideData ของสถานีจริง โดยเรียงลำดับ: real API → table 2026 → harmonic fallback
+ * @param {string} dateStr - YYYY-MM-DD
+ * @param {string} stationKey - PHRA_CHULA | SANDON | THA_CHIN
+ * @param {boolean} allowReal - ใช้ real API หรือไม่ (SITE_BKT ใช้ false เพื่อให้ตรงกับ DATA/IDW 2026)
+ * @returns {{tideData:Array, dataSource:string}}
+ */
+function resolveStationTideData(dateStr, stationKey, allowReal) {
+  let tideData = null;
+  let dataSource = 'simulated';
+
+  // Port Monitoring API สำหรับ PHRA_CHULA — แหล่งข้อมูลจริงระดับแรก
+  if (stationKey === 'PHRA_CHULA' && allowReal) {
+    const latest = fetchPortMonitoringLatest(CONFIG.PORT_MONITORING.station_id);
+    let historyHours = 24;
+    // ทดลองดึง history ตาม timeframe ที่มีข้อมูล
+    tideData = fetchPortMonitoringHistory(CONFIG.PORT_MONITORING.station_id, historyHours);
+    if (!tideData) tideData = fetchPortMonitoringHistory(CONFIG.PORT_MONITORING.station_id, 12);
+    if (!tideData) tideData = fetchPortMonitoringHistory(CONFIG.PORT_MONITORING.station_id, 6);
+    if (tideData && latest) {
+      // เติม latest reading เป็นจุดแรก (ถ้า time ยังไม่มีในวันนี้)
+      const todayStr = dateStr.replace(/-/g, '/');
+      if (!latest.time || latest.time.indexOf(todayStr) < 0) {
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        tideData.unshift({
+          time: h + ':' + m,
+          level: latest.level,
+          hour: now.getHours() + now.getMinutes() / 60,
+          isReal: true
+        });
+      }
+      dataSource = 'port_monitoring';
+    } else if (latest && !tideData) {
+      // มีข้อมูลล่าสุดแต่ไม่มี history → สร้าง tideData จากค่าเดียว
+      const level = latest.level;
+      tideData = [];
+      for (let i = 0; i < 48; i++) {
+        const totalMins = i * 30;
+        const h = Math.floor(totalMins / 60);
+        const m = totalMins % 60;
+        const timeStr = (h < 10 ? '0' + h : '' + h) + ':' + (m < 10 ? '0' + m : '' + m);
+        tideData.push({ time: timeStr, level: i === 0 ? level : null, hour: h + m / 60, isReal: true });
+      }
+      dataSource = 'port_monitoring';
+    }
+  }
+
+  const realCfg2 = CONFIG.REAL_STATIONS[stationKey];
+  if (!tideData && allowReal && realCfg2) {
+    tideData = fetchRealTideData(dateStr, realCfg2.code, realCfg2.datumOffset);
+    if (tideData) dataSource = 'real';
+  }
+
+  if (!tideData) {
+    tideData = getTideDataFromTable(dateStr, stationKey);
+    if (tideData) dataSource = 'table';
+  }
+
+  if (!tideData) {
+    tideData = getTideDataForDate(dateStr, stationKey);
+  }
+
+  return { tideData: tideData, dataSource: dataSource };
+}
+
+/**
+ * คำนวณระดับน้ำประเมินหน้างาน SITE_BKT ด้วย IDW weights จาก DATA/03_Stations.csv
+ * สูตรตรวจแล้วตรงกับ DATA/05_Site_Estimate_Hourly.csv
+ * @param {string} dateStr - YYYY-MM-DD
+ * @returns {Array} tideData 48 จุดทุก 30 นาที
+ */
+function getSiteEstimateTideData(dateStr) {
+  const sourceKeys = CONFIG.STATIONS.SITE_BKT.sourceStations;
+  const sourceData = {};
+  sourceKeys.forEach(function(key) {
+    sourceData[key] = resolveStationTideData(dateStr, key, false).tideData;
+  });
+
+  const result = [];
+  for (let i = 0; i < 48; i++) {
+    let weighted = 0;
+    let weightSum = 0;
+    let sample = null;
+    sourceKeys.forEach(function(key) {
+      const station = CONFIG.STATIONS[key];
+      const point = sourceData[key][i];
+      if (point && typeof point.level === 'number') {
+        weighted += point.level * station.idwWeight;
+        weightSum += station.idwWeight;
+        if (!sample) sample = point;
+      }
+    });
+    result.push({
+      time: sample ? sample.time : String(Math.floor(i / 2)).padStart(2, '0') + (i % 2 ? ':30' : ':00'),
+      level: weightSum > 0 ? Math.round((weighted / weightSum) * 1000) / 1000 : null,
+      hour: sample ? sample.hour : i / 2,
+      isEstimated: true
+    });
+  }
+  return result;
+}
+
+function getTideDataForStation(dateStr, stationKey, allowReal) {
+  if (stationKey === 'SITE_BKT') {
+    return { tideData: getSiteEstimateTideData(dateStr), dataSource: 'idw' };
+  }
+  return resolveStationTideData(dateStr, stationKey, allowReal);
+}
+
+function getClosestLevel(tideData, datetime) {
+  const mins = datetime.getHours() * 60 + datetime.getMinutes();
+  const closest = tideData.reduce(function(best, d) {
+    const dMins = d.hour * 60;
+    return Math.abs(dMins - mins) < Math.abs(best.hour * 60 - mins) ? d : best;
+  });
+  return closest.level;
+}
+
+function getTideStatus(tideData, currentLevel, datetime) {
+  const currentHour = datetime.getHours() + datetime.getMinutes() / 60;
+  for (let i = 1; i < tideData.length; i++) {
+    if (tideData[i].hour >= currentHour) {
+      const prevLevel = tideData[i - 1].level;
+      if (currentLevel > prevLevel + 0.02) return 'rising';
+      if (currentLevel < prevLevel - 0.02) return 'falling';
+      break;
+    }
+  }
+  return 'stable';
+}
+
 // ============ API ENDPOINTS (called from frontend) ============
 
 /**
@@ -380,43 +698,16 @@ function getDashboardData(dateStr) {
   };
   
   for (const [key, station] of Object.entries(CONFIG.STATIONS)) {
-    let tideData = null;
-    let dataSource = 'simulated';
-
-    // 1. ลอง real-time API ก่อน (มีเฉพาะ THA_CHIN ผ่าน MD05)
-    const realCfg = CONFIG.REAL_STATIONS[key];
-    if (realCfg) {
-      tideData = fetchRealTideData(dateStr, realCfg.code, realCfg.datumOffset);
-      if (tideData) dataSource = 'real';
-    }
-
-    // 2. ลองตารางน้ำจริงจากกรมอุทกศาสตร์ 2026
-    if (!tideData) {
-      tideData = getTideDataFromTable(dateStr, key);
-      if (tideData) dataSource = 'table';
-    }
-
-    // 3. fallback Harmonic สำหรับวันที่ไม่อยู่ในตาราง
-    if (!tideData) {
-      tideData = getTideDataForDate(dateStr, key);
-    }
+    const resolved = getTideDataForStation(dateStr, key, true);
+    const tideData = resolved.tideData;
+    const dataSource = resolved.dataSource;
 
     const { highTides, lowTides } = findHighLowTide(tideData);
     const workWindows = findWorkWindows(tideData);
 
-    // currentLevel: ใช้ข้อมูลจริงล่าสุดหรือสูตรจำลอง
-    let currentLevel;
-    if (dataSource === 'real') {
-      const now = new Date();
-      const nowMins = now.getHours() * 60 + now.getMinutes();
-      const closest = tideData.reduce(function(best, d) {
-        const dMins = d.hour * 60;
-        return Math.abs(dMins - nowMins) < Math.abs(best.hour * 60 - nowMins) ? d : best;
-      });
-      currentLevel = closest.level;
-    } else {
-      currentLevel = calculateTideLevel(new Date(), key);
-    }
+    const now = new Date();
+    const currentLevel = getClosestLevel(tideData, now);
+    const tideStatus = getTideStatus(tideData, currentLevel, now);
 
     result.stations[key] = {
       info: station,
@@ -425,6 +716,7 @@ function getDashboardData(dateStr) {
       lowTides: lowTides,
       workWindows: workWindows,
       currentLevel: currentLevel,
+      tideStatus: tideStatus,
       dataSource: dataSource
     };
   }
@@ -482,22 +774,12 @@ function getRealtimeData() {
   };
   
   for (const [key, station] of Object.entries(CONFIG.STATIONS)) {
-    const level = calculateTideLevel(now, key);
-    const tideData = getTideDataForDate(today, key);
+    const resolved = getTideDataForStation(today, key, true);
+    const tideData = resolved.tideData;
+    const level = getClosestLevel(tideData, now);
     const { highTides, lowTides } = findHighLowTide(tideData);
     const workWindows = findWorkWindows(tideData);
-    
-    // หาสถานะน้ำขึ้น/น้ำลง
-    const currentHour = now.getHours() + now.getMinutes() / 60;
-    let tideStatus = 'stable';
-    for (let i = 1; i < tideData.length; i++) {
-      if (tideData[i].hour >= currentHour) {
-        const prevLevel = tideData[i - 1].level;
-        if (level > prevLevel + 0.02) tideStatus = 'rising';
-        else if (level < prevLevel - 0.02) tideStatus = 'falling';
-        break;
-      }
-    }
+    const tideStatus = getTideStatus(tideData, level, now);
     
     result.stations[key] = {
       info: station,
@@ -505,7 +787,8 @@ function getRealtimeData() {
       tideStatus: tideStatus,
       highTides: highTides,
       lowTides: lowTides,
-      workWindows: workWindows
+      workWindows: workWindows,
+      dataSource: resolved.dataSource
     };
   }
   
@@ -532,22 +815,107 @@ function getMonthlyTideTable(yearMonth, stationKey) {
       (month < 10 ? '0' + month : '' + month) + '-' +
       (d < 10 ? '0' + d : '' + d);
 
-    var tideData = getTideDataFromTable(dateStr, stationKey);
-    if (!tideData) tideData = getTideDataForDate(dateStr, stationKey);
+    var tideData = getTideDataForStation(dateStr, stationKey, false).tideData;
 
-    var hl = findHighLowTide(tideData);
+    // Extract hourly values at :00 (every 2nd point of 30-min data → indices 0,2,4,...,46)
+    var hourly = [];
+    for (var i = 0; i < 48; i += 2) {
+      hourly.push(tideData[i] ? tideData[i].level : null);
+    }
+
     var dt = new Date(dateStr + 'T00:00:00+07:00');
 
     result.push({
       date: dateStr,
       day: d,
       dayName: Utilities.formatDate(dt, 'Asia/Bangkok', 'EEEE'),
-      highTides: hl.highTides,
-      lowTides: hl.lowTides
+      hourly: hourly
     });
   }
 
   return result;
+}
+
+// ============ CHART DATA FOR MULTI-PERIOD VIEWS ============
+
+/**
+ * ดึงข้อมูลระดับน้ำรายชั่วโมงต่อเนื่องหลายวัน (สำหรับ มุมมองรายวัน 7 วัน)
+ */
+function getMultiDayChart(startDate, numDays, stationKey) {
+  var base = new Date(startDate + 'T00:00:00+07:00');
+  var labels = [];
+  var levels = [];
+  var msl = CONFIG.STATIONS[stationKey].msl;
+
+  for (var d = 0; d < numDays; d++) {
+    var dt = new Date(base.getTime() + d * 86400000);
+    var dateStr = Utilities.formatDate(dt, 'Asia/Bangkok', 'yyyy-MM-dd');
+    var dayLabel = Utilities.formatDate(dt, 'Asia/Bangkok', 'd MMM');
+
+    var tideData = getTideDataForStation(dateStr, stationKey, false).tideData;
+
+    for (var i = 0; i < 48; i += 2) { // hourly points
+      labels.push(i === 0 ? dayLabel : tideData[i].time);
+      levels.push(tideData[i].level);
+    }
+  }
+
+  return { labels: labels, levels: levels, msl: msl, type: 'continuous' };
+}
+
+/**
+ * ดึงค่า max/min รายวัน (สำหรับ มุมมองรายสัปดาห์ / รายเดือน)
+ */
+function getDailyAggregates(startDate, numDays, stationKey) {
+  var base = new Date(startDate + 'T00:00:00+07:00');
+  var labels = [];
+  var maxLevels = [];
+  var minLevels = [];
+  var msl = CONFIG.STATIONS[stationKey].msl;
+
+  for (var d = 0; d < numDays; d++) {
+    var dt = new Date(base.getTime() + d * 86400000);
+    var dateStr = Utilities.formatDate(dt, 'Asia/Bangkok', 'yyyy-MM-dd');
+    labels.push(Utilities.formatDate(dt, 'Asia/Bangkok', 'd/M'));
+
+    var tideData = getTideDataForStation(dateStr, stationKey, false).tideData;
+
+    var dayLevels = tideData.map(function(p) { return p.level; });
+    maxLevels.push(Math.round(Math.max.apply(null, dayLevels) * 100) / 100);
+    minLevels.push(Math.round(Math.min.apply(null, dayLevels) * 100) / 100);
+  }
+
+  return { labels: labels, maxLevels: maxLevels, minLevels: minLevels, msl: msl, type: 'aggregate' };
+}
+
+/**
+ * ดึงค่า max/min รายเดือนตลอดปี (สำหรับ มุมมองรายปี)
+ */
+function getMonthlyAggregates(year, stationKey) {
+  var thaiMonths = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  var labels = [];
+  var maxLevels = [];
+  var minLevels = [];
+  var msl = CONFIG.STATIONS[stationKey].msl;
+
+  for (var m = 1; m <= 12; m++) {
+    labels.push(thaiMonths[m - 1] + ' ' + (year + 543));
+    var daysInMonth = new Date(year, m, 0).getDate();
+    var monthMax = -Infinity, monthMin = Infinity;
+
+    for (var d = 1; d <= daysInMonth; d++) {
+      var dateStr = year + '-' + (m < 10 ? '0' + m : '' + m) + '-' + (d < 10 ? '0' + d : '' + d);
+      var tideData = getTideDataForStation(dateStr, stationKey, false).tideData;
+      var dayLevels = tideData.map(function(p) { return p.level; });
+      monthMax = Math.max(monthMax, Math.max.apply(null, dayLevels));
+      monthMin = Math.min(monthMin, Math.min.apply(null, dayLevels));
+    }
+
+    maxLevels.push(Math.round(monthMax * 100) / 100);
+    minLevels.push(Math.round(monthMin * 100) / 100);
+  }
+
+  return { labels: labels, maxLevels: maxLevels, minLevels: minLevels, msl: msl, type: 'aggregate' };
 }
 
 // ============ UTILITIES ============
